@@ -57,6 +57,11 @@ export const translations = {
         unlock: "Unlock Special Memory",
         unlocking: "Reading Memory...",
       },
+      settings: {
+        audio: "Audio Settings",
+        volume: "Master Volume",
+        mute: "Mute All Sound",
+      },
       emptyBag: "Your bag is empty."
     },
     gallery: {
@@ -132,6 +137,11 @@ export const translations = {
         galleryDesc: "查看解锁的CG和事件。",
         unlock: "解锁特殊回忆",
         unlocking: "正在读取回忆...",
+      },
+      settings: {
+        audio: "音频设置",
+        volume: "主音量",
+        mute: "静音",
       },
       emptyBag: "背包是空的。"
     },
@@ -209,6 +219,11 @@ export const translations = {
         unlock: "特別な思い出を解放",
         unlocking: "読み込み中...",
       },
+      settings: {
+        audio: "オーディオ設定",
+        volume: "主音量",
+        mute: "ミュート",
+      },
       emptyBag: "空っぽです。"
     },
     gallery: {
@@ -285,6 +300,11 @@ export const translations = {
         unlock: "Открыть воспоминание",
         unlocking: "Чтение памяти...",
       },
+      settings: {
+        audio: "Настройки звука",
+        volume: "Громкость",
+        mute: "Без звука",
+      },
       emptyBag: "В сумке пусто."
     },
     gallery: {
@@ -360,6 +380,11 @@ export const translations = {
         galleryDesc: "Voir les CG et événements débloqués.",
         unlock: "Débloquer Souvenir",
         unlocking: "Lecture du souvenir...",
+      },
+      settings: {
+        audio: "Paramètres Audio",
+        volume: "Volume Principal",
+        mute: "Muet",
       },
       emptyBag: "Votre sac est vide."
     },

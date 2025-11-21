@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Music, User, Menu as MenuIcon } from 'lucide-react';
+import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Music, User, Menu as MenuIcon, Volume2, VolumeX } from 'lucide-react';
 import { GameState, Heroine } from '../types';
 import { TranslationType } from '../i18n/translations';
 
@@ -14,10 +14,15 @@ interface SystemMenuProps {
   onOpenLoad: () => void;
   processingBonusId: string | null;
   t: TranslationType;
+  volume: number;
+  setVolume: (v: number) => void;
+  isMuted: boolean;
+  setIsMuted: (m: boolean) => void;
 }
 
 const SystemMenu: React.FC<SystemMenuProps> = ({ 
-  state, isOpen, onClose, onOpenGallery, onUnlockBonus, onOpenSave, onOpenLoad, processingBonusId, t 
+  state, isOpen, onClose, onOpenGallery, onUnlockBonus, onOpenSave, onOpenLoad, processingBonusId, t,
+  volume, setVolume, isMuted, setIsMuted
 }) => {
   const [activeTab, setActiveTab] = useState<'status' | 'inventory' | 'system'>('status');
 
@@ -156,6 +161,41 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
             {/* System Tab */}
             {activeTab === 'system' && (
                 <div className="space-y-4">
+                    {/* Audio Settings */}
+                    <div className="bg-white border-2 border-gray-100 p-4 rounded-xl shadow-sm">
+                        <div className="flex items-center text-gray-700 font-bold mb-3">
+                            <Volume2 className="w-4 h-4 mr-2 text-pink-500" />
+                            {t.menu.settings.audio}
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between text-xs text-gray-500">
+                                    <span>{t.menu.settings.volume}</span>
+                                    <span>{Math.round(volume * 100)}%</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="0" 
+                                    max="1" 
+                                    step="0.05" 
+                                    value={volume}
+                                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                                    disabled={isMuted}
+                                    className={`w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-pink-500 ${isMuted ? 'opacity-50' : ''}`}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-600">{t.menu.settings.mute}</span>
+                                <button 
+                                    onClick={() => setIsMuted(!isMuted)}
+                                    className={`relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none ${isMuted ? 'bg-pink-500' : 'bg-gray-300'}`}
+                                >
+                                    <span className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full shadow transition-transform duration-200 ease-in-out ${isMuted ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 gap-3">
                         <button onClick={onOpenSave} className="bg-white border-2 border-gray-100 hover:border-pink-300 p-4 rounded-xl text-left shadow-sm transition-all group">
                             <div className="font-bold text-gray-700 group-hover:text-pink-600">{t.menu.actions.save}</div>
@@ -175,7 +215,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
         </div>
 
         <div className="p-3 text-center text-[10px] text-gray-400 bg-gray-100">
-            Kizuna Engine v2.0 • {t.game.turn} {state.turnCount} • {state.theme}
+            Kizuna Engine v2.1 • {t.game.turn} {state.turnCount} • {state.theme}
         </div>
       </div>
     </div>

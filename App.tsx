@@ -1,6 +1,5 @@
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
 import { saveCGToGallery, saveGame } from './services/db';
@@ -28,6 +27,21 @@ const App: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
   const t = translations[currentLanguage];
 
+  // Audio State (with persistence)
+  const [volume, setVolume] = useState(() => {
+    const saved = localStorage.getItem('ke_volume');
+    return saved !== null ? parseFloat(saved) : 0.5;
+  });
+  const [isMuted, setIsMuted] = useState(() => {
+    const saved = localStorage.getItem('ke_muted');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ke_volume', volume.toString());
+    localStorage.setItem('ke_muted', isMuted.toString());
+  }, [volume, isMuted]);
+
   // Theme State
   const [selectedTheme, setSelectedTheme] = useState<string>("Japanese High School");
   const [customTheme, setCustomTheme] = useState<string>("");
@@ -52,15 +66,8 @@ const App: React.FC = () => {
     setError(null);
     setShowThemeModal(false); // Ensure modal is closed
     
-    // If it's a predefined theme, we can pass the localized name if we wanted, 
-    // but passing the English ID is safer for prompt consistency unless we want the AI 
-    // to strictly follow cultural nuances of the theme name in that language.
-    // For now, let's pass the English ID but ask for content in target language.
     const themeToUse = isCustomTheme && customTheme ? customTheme : selectedTheme;
     
-    // If using a translated predefined theme name (optional optimization):
-    // const displayTheme = isCustomTheme ? customTheme : translations[currentLanguage].theme.names[selectedTheme as keyof typeof translations['en']['theme']['names']] || selectedTheme;
-
     try {
       const scene = await generateInitialScene(themeToUse, currentLanguage);
       await updateGameState(scene, themeToUse, currentLanguage, true);
@@ -154,9 +161,6 @@ const App: React.FC = () => {
 
   const handleLoadGame = (loadedState: GameState) => {
     setGameState(loadedState);
-    // Update UI language to match save file, or keep current?
-    // Usually better to switch to the save file's language context or keep UI separate.
-    // Here we sync UI language to the game state language for consistency.
     const savedLang = loadedState.language as Language;
     if (translations[savedLang]) {
         setCurrentLanguage(savedLang);
@@ -176,6 +180,13 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden font-sans">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 blur-sm transform scale-105"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80"></div>
+        
+        <AudioController 
+            bgm={gameState?.bgm} 
+            sfx={gameState?.soundEffect} 
+            volume={volume}
+            isMuted={isMuted} 
+        />
         
         {/* Language Selector (Top Right) */}
         <div className="absolute top-6 right-6 z-50 flex gap-2">
@@ -283,7 +294,8 @@ const App: React.FC = () => {
       <AudioController 
         bgm={gameState?.bgm} 
         sfx={gameState?.soundEffect} 
-        volume={0.5} 
+        volume={volume} 
+        isMuted={isMuted}
       />
 
       <div className="absolute inset-0 z-10">
@@ -310,6 +322,10 @@ const App: React.FC = () => {
             onOpenLoad={() => { setIsMenuOpen(false); setShowSaveLoad('load'); }}
             processingBonusId={processingBonusId}
             t={t}
+            volume={volume}
+            setVolume={setVolume}
+            isMuted={isMuted}
+            setIsMuted={setIsMuted}
           />
       )}
 
