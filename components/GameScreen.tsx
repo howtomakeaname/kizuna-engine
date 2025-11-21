@@ -1,6 +1,8 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { GameState, Choice } from '../types';
 import { MessageCircle, Sparkles, Image as ImageIcon, FastForward, SkipForward, Menu, Settings, EyeOff, History } from 'lucide-react';
+import { TranslationType } from '../i18n/translations';
 
 interface GameScreenProps {
   gameState: GameState;
@@ -8,6 +10,7 @@ interface GameScreenProps {
   onChoiceSelected: (choiceId: string) => void;
   onToggleMenu: () => void;
   isProcessing: boolean;
+  t: TranslationType;
 }
 
 const GameScreen: React.FC<GameScreenProps> = ({ 
@@ -15,7 +18,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
   bgImage, 
   onChoiceSelected, 
   onToggleMenu,
-  isProcessing 
+  isProcessing,
+  t
 }) => {
   const [typedNarrative, setTypedNarrative] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -27,13 +31,17 @@ const GameScreen: React.FC<GameScreenProps> = ({
   const narrativeRef = useRef<HTMLParagraphElement>(null);
 
   // Parse Character Name from Narrative
-  // Assuming format "Name: dialogue" or just dialogue
   const splitDialogue = (text: string) => {
     const colonIndex = text.indexOf(':');
-    if (colonIndex !== -1 && colonIndex < 20) { // Simple heuristic for name tag
+    // Heuristic: colon must be early in string and not part of a sentence (simplified)
+    // For non-English languages, sometimes full-width colon '：' is used.
+    const colonChar = text.includes('：') ? '：' : ':';
+    const idx = text.indexOf(colonChar);
+
+    if (idx !== -1 && idx < 20) { 
         return {
-            name: text.substring(0, colonIndex),
-            content: text.substring(colonIndex + 1).trim()
+            name: text.substring(0, idx),
+            content: text.substring(idx + 1).trim()
         };
     }
     return { name: '', content: text };
@@ -87,7 +95,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
         }}
       />
 
-      {/* Hide UI Toggle Area (Click background to toggle?) - Optional logic, using button for now */}
+      {/* Hide UI Toggle Area */}
       {hideUI && (
           <div 
             className="absolute inset-0 z-50 cursor-pointer" 
@@ -103,7 +111,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 {gameState.location}
             </div>
             <div className="bg-white/90 text-black px-4 py-1 rounded-b-lg text-xs font-medium shadow-lg">
-                Turn {gameState.turnCount}
+                {t.game.turn} {gameState.turnCount}
             </div>
         </div>
       )}
@@ -114,7 +122,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
             <button
                 onClick={() => setHideUI(true)}
                 className="p-2 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-colors"
-                title="Hide UI"
+                title={t.game.hideUi}
             >
                 <EyeOff className="w-5 h-5" />
             </button>
@@ -127,11 +135,12 @@ const GameScreen: React.FC<GameScreenProps> = ({
                 }`}
             >
                 <FastForward className={`w-4 h-4 ${isSkipMode ? 'fill-current' : ''}`} />
-                <span>{isSkipMode ? 'Skipping' : 'Skip'}</span>
+                <span>{isSkipMode ? t.game.skipping : t.game.skip}</span>
             </button>
             <button
                 onClick={onToggleMenu}
                 className="p-2 bg-white/90 hover:bg-white text-pink-600 rounded-full shadow-lg transition-transform hover:scale-110"
+                title={t.game.menu}
             >
                 <Menu className="w-5 h-5" />
             </button>
@@ -144,7 +153,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
              <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-8 py-4 rounded-full shadow-2xl border-2 border-white/50 flex items-center space-x-3 backdrop-blur-md">
                 <Sparkles className="w-6 h-6 animate-spin-slow text-yellow-200" />
                 <div className="flex flex-col items-center leading-tight">
-                    <span className="font-bold font-display tracking-widest text-sm">SPECIAL EVENT</span>
+                    <span className="font-bold font-display tracking-widest text-sm">{t.game.specialEvent}</span>
                     <span className="text-xs opacity-90 font-sans uppercase">{gameState.unlockCg.title}</span>
                 </div>
              </div>
@@ -209,14 +218,14 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
                     {/* Text Box Controls */}
                     <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">Log</button>
+                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">{t.game.log}</button>
                         <button 
                             className={`text-xs font-bold uppercase px-2 ${isSkipMode ? 'text-pink-400' : 'text-gray-400 hover:text-white'}`}
                             onClick={(e) => { e.stopPropagation(); setIsSkipMode(!isSkipMode); }}
                         >
-                            Skip
+                            {t.game.skip}
                         </button>
-                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">Auto</button>
+                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">{t.game.auto}</button>
                     </div>
                 </div>
             </div>

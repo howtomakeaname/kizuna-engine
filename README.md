@@ -12,33 +12,61 @@ Configure the following variables in your environment (e.g., `.env` file):
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `AI_PROVIDER` | Choose between `gemini` or `siliconflow`. | `gemini` |
+| `AI_PROVIDER` | Choose between `gemini`, `siliconflow`, or `custom`. | `gemini` |
 | `API_KEY` | **Required for Gemini.** Your Google GenAI API Key. | - |
 | `SILICONFLOW_API_KEY` | **Required for SiliconFlow.** Your SiliconFlow API Key. | - |
 | `GEMINI_API_KEY` | Alternate name for `API_KEY`. | - |
+| `CUSTOM_API_URL` | **Required for Custom.** URL for text generation (Chat Completions). | - |
+| `CUSTOM_API_KEY` | Optional key for Custom API. | - |
+| `CUSTOM_MODEL_NAME` | Model ID for Custom API (e.g., `llama3`, `gpt-4o`). | `gpt-3.5-turbo` |
+| `CUSTOM_IMAGE_API_URL`| Optional URL for image generation. | - |
 
 ### Provider Details
 
-#### Google Gemini (Default)
+#### 1. Google Gemini (Default)
 - **Text Model**: `gemini-2.5-flash`
 - **Image Model**: `imagen-4.0-generate-001`
-- **Features**: Native JSON schema enforcement, high speed.
+- **Features**: Native JSON schema enforcement, high speed, multimodal.
 
-#### SiliconFlow
+#### 2. SiliconFlow
 - **Text Model**: `deepseek-ai/DeepSeek-V3`
 - **Image Model**: `Qwen/Qwen-Image`
 - **Features**: Uses DeepSeek's reasoning capabilities and Qwen's image generation.
-- **Note**: Ensure your SiliconFlow account has sufficient credits.
+
+#### 3. Custom / User-Built APIs (Self-Hosted)
+Connect to your own API compatible with the **OpenAI Standard**.
+This works with tools like:
+- **Ollama** (local)
+- **LM Studio** (local)
+- **vLLM** (server)
+- **LocalAI** (server)
+- **Any OpenAI-compatible cloud provider** (Groq, Together, etc.)
+
+**Example .env for Ollama (Local):**
+```env
+AI_PROVIDER=custom
+CUSTOM_API_URL=http://localhost:11434/v1/chat/completions
+CUSTOM_MODEL_NAME=llama3
+CUSTOM_IMAGE_API_URL= # Leave empty if you don't have a local image generator
+```
+
+**Example .env for vLLM / Server:**
+```env
+AI_PROVIDER=custom
+CUSTOM_API_URL=http://192.168.1.50:8000/v1/chat/completions
+CUSTOM_API_KEY=my-secret-token
+CUSTOM_MODEL_NAME=meta-llama/Meta-Llama-3-70B-Instruct
+```
+
+**Requirements for Custom APIs:**
+- Must support `response_format: { type: "json_object" }` or be smart enough to return strictly valid JSON when prompted.
+- The endpoint should match the `/v1/chat/completions` signature.
 
 ## Setup
 
 1. Create a `.env` file in the root directory.
-2. Add your API keys:
-   ```env
-   AI_PROVIDER=siliconflow 
-   SILICONFLOW_API_KEY=sk-your-key-here
-   ```
-3. Restart the dev server to apply changes.
+2. Add your configurations based on the examples above.
+3. Restart the dev server (`npm run dev`) to apply changes.
 
 ## Features
 - **Themes**: Choose from High School, Magic, Maid Cafe, Isekai, or create your own.

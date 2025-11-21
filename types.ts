@@ -1,3 +1,4 @@
+
 export interface Heroine {
   id: string;
   name: string;
@@ -39,6 +40,7 @@ export interface GameState {
   theme: string; // The current active theme of the story
   bgm?: string; // Current background music mood
   soundEffect?: string; // Immediate sound effect to play
+  language: string; // Language code (en, zh, ja, ru)
 }
 
 export interface SceneResponse {

@@ -1,16 +1,19 @@
+
 import React, { useEffect, useState } from 'react';
 import { X, Save, RotateCcw, Trash2, Clock, Zap } from 'lucide-react';
 import { SaveSlot, GameState } from '../types';
 import { getSaves, saveGame, deleteSave } from '../services/db';
+import { TranslationType } from '../i18n/translations';
 
 interface SaveLoadModalProps {
   mode: 'save' | 'load';
   currentState?: GameState;
   onClose: () => void;
   onLoadGame: (state: GameState) => void;
+  t: TranslationType;
 }
 
-const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClose, onLoadGame }) => {
+const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClose, onLoadGame, t }) => {
   const [saves, setSaves] = useState<SaveSlot[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +50,7 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
 
   const handleDelete = async (e: React.MouseEvent, slotId: string) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this save?")) {
+    if (confirm(t.saveload.deleteConfirm)) {
       await deleteSave(slotId);
       refreshSaves();
     }
@@ -78,7 +81,7 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
             {save?.previewImage ? (
               <img src={save.previewImage} alt="Save" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-gray-400 text-xs">No Data</span>
+              <span className="text-gray-400 text-xs">{t.saveload.noData}</span>
             )}
           </div>
 
@@ -87,7 +90,7 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
                 <h3 className={`font-bold text-lg ${isAutoSave ? 'text-amber-700' : 'text-gray-700'}`}>{title}</h3>
-                {isAutoSave && <span className="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider flex items-center"><Zap className="w-3 h-3 mr-1" /> Auto</span>}
+                {isAutoSave && <span className="bg-amber-500 text-white text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider flex items-center"><Zap className="w-3 h-3 mr-1" /> {t.saveload.autoSave}</span>}
               </div>
               {save && !isAutoSave && (
                 <button 
@@ -103,11 +106,11 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
                 <p className="font-medium text-pink-600 line-clamp-1">{save.location}</p>
                 <div className="flex items-center gap-3 text-xs text-gray-400">
                   <span className="flex items-center"><Clock className="w-3 h-3 mr-1"/> {new Date(save.timestamp).toLocaleString()}</span>
-                  <span>Turn: {save.turnCount}</span>
+                  <span>{t.game.turn}: {save.turnCount}</span>
                 </div>
               </div>
             ) : (
-              <p className="mt-2 text-gray-400 text-sm italic">Empty Slot</p>
+              <p className="mt-2 text-gray-400 text-sm italic">{t.saveload.empty}</p>
             )}
           </div>
         </div>
@@ -115,8 +118,8 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
         {/* Hover Overlay Text */}
         {canInteract && (
            <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl pointer-events-none">
-             {mode === 'save' && !isAutoSave && <span className="bg-pink-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">Save Here</span>}
-             {mode === 'load' && save && <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">Load Game</span>}
+             {mode === 'save' && !isAutoSave && <span className="bg-pink-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">{t.saveload.saveHere}</span>}
+             {mode === 'load' && save && <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-md">{t.saveload.loadGame}</span>}
            </div>
         )}
       </div>
@@ -133,7 +136,7 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
         <div className="p-6 bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-between text-white">
           <h2 className="text-2xl font-display font-bold flex items-center">
             {mode === 'save' ? <Save className="w-6 h-6 mr-2" /> : <RotateCcw className="w-6 h-6 mr-2" />}
-            {mode === 'save' ? 'Save Game' : 'Load Game'}
+            {mode === 'save' ? t.saveload.saveTitle : t.saveload.loadTitle}
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full">
             <X className="w-6 h-6" />
@@ -148,7 +151,7 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
                {/* Auto Save Section - Only visible in Load Mode or if debug */}
                {mode === 'load' && hasAutoSave && (
                  <>
-                   {renderSlot('autosave', 'Auto Save', true)}
+                   {renderSlot('autosave', t.saveload.autoSave, true)}
                    <div className="border-t border-gray-200 my-2"></div>
                  </>
                )}

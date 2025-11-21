@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { Palette, Sparkles, X, Play, Check } from 'lucide-react';
+import { TranslationType } from '../i18n/translations';
 
 interface ThemeSelectionModalProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ interface ThemeSelectionModalProps {
   isCustomTheme: boolean;
   setIsCustomTheme: (isCustom: boolean) => void;
   predefinedThemes: string[];
+  t: TranslationType;
 }
 
 const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
@@ -24,7 +27,8 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
   setCustomTheme,
   isCustomTheme,
   setIsCustomTheme,
-  predefinedThemes
+  predefinedThemes,
+  t
 }) => {
   if (!isOpen) return null;
 
@@ -36,7 +40,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
         <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-pink-900/40 to-purple-900/40">
           <div className="flex items-center text-pink-400">
             <Palette className="w-6 h-6 mr-3" />
-            <h2 className="text-2xl font-display font-bold text-white tracking-wide">Select Story Theme</h2>
+            <h2 className="text-2xl font-display font-bold text-white tracking-wide">{t.theme.title}</h2>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors">
             <X className="w-6 h-6" />
@@ -45,10 +49,13 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar bg-black/20">
-             <p className="text-gray-400 text-sm mb-4">Choose the setting for your visual novel adventure:</p>
+             <p className="text-gray-400 text-sm mb-4">{t.theme.desc}</p>
              
              {predefinedThemes.map((theme) => {
                 const isSelected = !isCustomTheme && selectedTheme === theme;
+                // Try to get translated name, fallback to original string
+                const displayName = t.theme.names[theme as keyof typeof t.theme.names] || theme;
+
                 return (
                   <button
                       key={theme}
@@ -60,7 +67,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                       }`}
                   >
                       {isSelected && <div className="absolute inset-0 bg-white/10 animate-pulse pointer-events-none" />}
-                      <span className="font-medium text-lg relative z-10">{theme}</span>
+                      <span className="font-medium text-lg relative z-10">{displayName}</span>
                       {isSelected && <Check className="w-5 h-5 text-white relative z-10" />}
                   </button>
                 );
@@ -82,7 +89,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                         </div>
                         <span className={`font-medium text-lg flex items-center ${isCustomTheme ? 'text-white' : 'text-gray-300'}`}>
                             <Sparkles className="w-4 h-4 mr-2" />
-                            Custom Scenario
+                            {t.theme.custom}
                         </span>
                     </button>
 
@@ -92,7 +99,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                                 type="text"
                                 value={customTheme}
                                 onChange={(e) => setCustomTheme(e.target.value)}
-                                placeholder="E.g. Cyberpunk Detective Noir, Zombie Survival, Ancient Rome..."
+                                placeholder={t.theme.customPlaceholder}
                                 className="w-full bg-black/40 border border-white/20 rounded-lg p-3 text-white placeholder-gray-400 focus:outline-none focus:border-white/50 transition-colors text-sm"
                                 autoFocus
                             />
@@ -105,14 +112,14 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
         {/* Footer */}
         <div className="p-6 bg-black/40 border-t border-white/10 flex justify-end items-center space-x-4">
             <button onClick={onClose} className="text-gray-400 hover:text-white font-medium text-sm px-4 py-2">
-                Cancel
+                {t.theme.cancel}
             </button>
             <button 
                 onClick={onStart}
                 className="bg-white text-pink-600 hover:bg-pink-50 font-bold py-3 px-8 rounded-full shadow-lg shadow-white/10 transform hover:scale-105 transition-all flex items-center"
             >
                 <Play className="w-5 h-5 mr-2 fill-current" />
-                Start Game
+                {t.theme.start}
             </button>
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
@@ -8,7 +9,8 @@ import AudioController from './components/AudioController';
 import Gallery from './components/Gallery';
 import SaveLoadModal from './components/SaveLoadModal';
 import ThemeSelectionModal from './components/ThemeSelectionModal';
-import { Loader2, Sparkles, Play, Settings, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Sparkles, Play, Settings, Image as ImageIcon, Globe } from 'lucide-react';
+import { translations, Language } from './i18n/translations';
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.START_SCREEN);
@@ -20,6 +22,10 @@ const App: React.FC = () => {
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingBonusId, setProcessingBonusId] = useState<string | null>(null);
+  
+  // Language State
+  const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+  const t = translations[currentLanguage];
 
   // Theme State
   const [selectedTheme, setSelectedTheme] = useState<string>("Japanese High School");
@@ -32,7 +38,11 @@ const App: React.FC = () => {
     "Cat Girl & Maid Cafe",
     "Isekai Fantasy Adventure",
     "Cyberpunk Dystopia",
-    "Post-Apocalyptic Survival"
+    "Post-Apocalyptic Survival",
+    "Sci-Fi Space Opera",
+    "Historical Dynasty",
+    "Mythological Fantasy",
+    "Supernatural Horror",
   ];
 
   // Start Game Handler
@@ -41,11 +51,18 @@ const App: React.FC = () => {
     setError(null);
     setShowThemeModal(false); // Ensure modal is closed
     
+    // If it's a predefined theme, we can pass the localized name if we wanted, 
+    // but passing the English ID is safer for prompt consistency unless we want the AI 
+    // to strictly follow cultural nuances of the theme name in that language.
+    // For now, let's pass the English ID but ask for content in target language.
     const themeToUse = isCustomTheme && customTheme ? customTheme : selectedTheme;
+    
+    // If using a translated predefined theme name (optional optimization):
+    // const displayTheme = isCustomTheme ? customTheme : translations[currentLanguage].theme.names[selectedTheme as keyof typeof translations['en']['theme']['names']] || selectedTheme;
 
     try {
-      const scene = await generateInitialScene(themeToUse);
-      await updateGameState(scene, themeToUse, true);
+      const scene = await generateInitialScene(themeToUse, currentLanguage);
+      await updateGameState(scene, themeToUse, currentLanguage, true);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to start game. Please check your API Key or Provider settings.");
@@ -59,7 +76,7 @@ const App: React.FC = () => {
     setStatus(GameStatus.LOADING_SCENE);
     try {
       const scene = await generateNextScene(gameState, choiceId);
-      await updateGameState(scene, gameState.theme);
+      await updateGameState(scene, gameState.theme, gameState.language);
     } catch (err: any) {
       console.error(err);
       setError("The engine encountered a glitch. Trying to recover...");
@@ -73,7 +90,7 @@ const App: React.FC = () => {
     setProcessingBonusId(heroine.id);
     
     try {
-      const bonusContent = await generateSecretMemory(heroine, gameState.theme);
+      const bonusContent = await generateSecretMemory(heroine, gameState.theme, gameState.language);
       const imageUrl = await generateSceneImage(bonusContent.imagePrompt);
       const uniqueId = `${bonusContent.id}_${Date.now()}`;
       await saveCGToGallery({ ...bonusContent, id: uniqueId }, imageUrl, 'event');
@@ -87,7 +104,7 @@ const App: React.FC = () => {
   };
 
   // Update Game State & Generate Image
-  const updateGameState = async (scene: SceneResponse, theme: string, isReset: boolean = false) => {
+  const updateGameState = async (scene: SceneResponse, theme: string, language: string, isReset: boolean = false) => {
     setGameState(prevState => ({
       narrative: scene.narrative,
       choices: scene.choices,
@@ -102,7 +119,8 @@ const App: React.FC = () => {
       currentBgImage: isReset ? undefined : prevState?.currentBgImage,
       theme: theme,
       bgm: scene.bgm, 
-      soundEffect: scene.soundEffect 
+      soundEffect: scene.soundEffect,
+      language: language
     }));
     
     setStatus(GameStatus.PLAYING);
@@ -135,6 +153,14 @@ const App: React.FC = () => {
 
   const handleLoadGame = (loadedState: GameState) => {
     setGameState(loadedState);
+    // Update UI language to match save file, or keep current?
+    // Usually better to switch to the save file's language context or keep UI separate.
+    // Here we sync UI language to the game state language for consistency.
+    const savedLang = loadedState.language as Language;
+    if (translations[savedLang]) {
+        setCurrentLanguage(savedLang);
+    }
+
     if (loadedState.currentBgImage) {
       setBgImage(loadedState.currentBgImage);
     }
@@ -150,14 +176,31 @@ const App: React.FC = () => {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 blur-sm transform scale-105"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80"></div>
         
+        {/* Language Selector (Top Right) */}
+        <div className="absolute top-6 right-6 z-50 flex gap-2">
+            {(['en', 'zh', 'ja', 'ru'] as Language[]).map((lang) => (
+                <button
+                    key={lang}
+                    onClick={() => setCurrentLanguage(lang)}
+                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase transition-all ${
+                        currentLanguage === lang 
+                        ? 'bg-pink-600 text-white shadow-lg' 
+                        : 'bg-black/40 text-gray-400 hover:bg-black/60 hover:text-white'
+                    }`}
+                >
+                    {lang}
+                </button>
+            ))}
+        </div>
+
         <div className="relative z-10 max-w-4xl w-full p-8 flex flex-col items-center justify-center h-full">
           
           <div className="text-center mb-12 animate-in fade-in slide-in-from-top-10 duration-1000">
             <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-purple-600 mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
-              KIZUNA
+              {t.start.title}
             </h1>
             <p className="text-2xl md:text-3xl text-pink-100 font-light tracking-[0.2em] uppercase opacity-90">
-              Infinite Visual Novel
+              {t.start.subtitle}
             </p>
           </div>
           
@@ -176,7 +219,7 @@ const App: React.FC = () => {
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
               <div className="flex items-center justify-center space-x-3">
                 <Play className="w-6 h-6 fill-current" />
-                <span>Start New Game</span>
+                <span>{t.start.newGame}</span>
               </div>
             </button>
 
@@ -186,21 +229,21 @@ const App: React.FC = () => {
                 className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2 group"
               >
                 <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                <span>Load</span>
+                <span>{t.start.load}</span>
               </button>
               <button
                 onClick={() => setShowGallery(true)}
                 className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2"
               >
                 <ImageIcon className="w-5 h-5" />
-                <span>Gallery</span>
+                <span>{t.start.gallery}</span>
               </button>
             </div>
 
           </div>
 
           <div className="mt-12 text-gray-500 text-xs tracking-widest uppercase opacity-60">
-             Powered by {process.env.AI_PROVIDER === 'siliconflow' ? 'SiliconFlow AI' : 'Google Gemini'}
+             {t.start.poweredBy} {process.env.AI_PROVIDER === 'siliconflow' ? 'SiliconFlow AI' : 'Google Gemini'}
           </div>
         </div>
         
@@ -216,15 +259,17 @@ const App: React.FC = () => {
             isCustomTheme={isCustomTheme}
             setIsCustomTheme={setIsCustomTheme}
             predefinedThemes={predefinedThemes}
+            t={t}
           />
         )}
 
-        {showGallery && <Gallery onClose={() => setShowGallery(false)} />}
+        {showGallery && <Gallery onClose={() => setShowGallery(false)} t={t} />}
         {showSaveLoad && (
           <SaveLoadModal 
             mode={showSaveLoad} 
             onClose={() => setShowSaveLoad(null)} 
             onLoadGame={handleLoadGame} 
+            t={t}
           />
         )}
       </div>
@@ -248,6 +293,7 @@ const App: React.FC = () => {
             onChoiceSelected={handleChoice}
             onToggleMenu={() => setIsMenuOpen(true)}
             isProcessing={status === GameStatus.LOADING_SCENE}
+            t={t}
           />
         )}
       </div>
@@ -262,6 +308,7 @@ const App: React.FC = () => {
             onOpenSave={() => { setIsMenuOpen(false); setShowSaveLoad('save'); }}
             onOpenLoad={() => { setIsMenuOpen(false); setShowSaveLoad('load'); }}
             processingBonusId={processingBonusId}
+            t={t}
           />
       )}
 
@@ -269,13 +316,13 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white/90 p-8 rounded-2xl shadow-2xl flex flex-col items-center animate-pulse max-w-sm text-center">
             <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
-            <div className="text-amber-600 font-bold text-xl font-display tracking-wide">Unlocking Secret Memory</div>
-            <p className="text-gray-500 text-xs mt-2">Generating special artwork...</p>
+            <div className="text-amber-600 font-bold text-xl font-display tracking-wide">{t.menu.actions.unlock}</div>
+            <p className="text-gray-500 text-xs mt-2">{t.menu.actions.unlocking}</p>
           </div>
         </div>
       )}
 
-      {showGallery && <Gallery onClose={() => setShowGallery(false)} />}
+      {showGallery && <Gallery onClose={() => setShowGallery(false)} t={t} />}
       
       {showSaveLoad && gameState && (
         <SaveLoadModal 
@@ -283,6 +330,7 @@ const App: React.FC = () => {
           currentState={gameState}
           onClose={() => setShowSaveLoad(null)} 
           onLoadGame={handleLoadGame} 
+          t={t}
         />
       )}
     </div>

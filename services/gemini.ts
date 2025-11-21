@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
 
@@ -5,6 +6,12 @@ import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
 const AI_PROVIDER = process.env.AI_PROVIDER || 'gemini';
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY;
 const SILICONFLOW_KEY = process.env.SILICONFLOW_API_KEY;
+
+// Custom API Configuration
+const CUSTOM_API_URL = process.env.CUSTOM_API_URL; // e.g., "http://localhost:11434/v1/chat/completions"
+const CUSTOM_API_KEY = process.env.CUSTOM_API_KEY;
+const CUSTOM_MODEL_NAME = process.env.CUSTOM_MODEL_NAME;
+const CUSTOM_IMAGE_API_URL = process.env.CUSTOM_IMAGE_API_URL; // e.g., "http://localhost:11434/v1/images/generations"
 
 // --- Schemas ---
 
@@ -96,7 +103,7 @@ const secretMemorySchema: Schema = {
   required: ["id", "title", "description", "imagePrompt"]
 };
 
-// SiliconFlow Text Schema Representation
+// Standard JSON Schema Instruction for non-Gemini providers
 const getJsonSchemaInstruction = () => `
   You must output strictly valid JSON. 
   Follow this schema structure exactly:
@@ -133,6 +140,7 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 3. **No Prose**: Do not write long descriptions. Show, don't tell.
 4. **Anime Tropes**: Lean into tropes appropriate for the theme.
 5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene.
+6. **Language**: You MUST output the narrative, choices, quest, location, and heroine details in the requested target language.
 
 **Game Rules**:
 1. Track affection (0-100).
@@ -148,8 +156,55 @@ const generateText = async (
   geminiSchema: Schema
 ): Promise<any> => {
   
+  // === CUSTOM API (User Built / Self-Hosted) ===
+  if (AI_PROVIDER === 'custom') {
+    if (!CUSTOM_API_URL) throw new Error("CUSTOM_API_URL is missing. Please check your .env file.");
+
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json"
+      };
+      if (CUSTOM_API_KEY) {
+        headers["Authorization"] = `Bearer ${CUSTOM_API_KEY}`;
+      }
+
+      const response = await fetch(CUSTOM_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          model: CUSTOM_MODEL_NAME || "gpt-3.5-turbo", // Default to common alias if not provided
+          messages: [
+            { role: "system", content: SYSTEM_INSTRUCTION + "\n\n" + schemaInstruction },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 4096,
+          temperature: 0.8
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Custom API Error:", errText);
+        throw new Error(`Custom API Error: ${response.status} - ${errText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      if (!content) throw new Error("No content received from Custom API");
+      
+      // Attempt to clean code blocks if the model wraps JSON in markdown
+      const cleanContent = content.replace(/```json\n?|```/g, "").trim();
+      return JSON.parse(cleanContent);
+    } catch (e) {
+      console.error("Custom API Text Gen Failed", e);
+      throw e;
+    }
+  }
+
   // === SILICONFLOW (DeepSeek) ===
-  if (AI_PROVIDER === 'siliconflow') {
+  else if (AI_PROVIDER === 'siliconflow') {
     if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing in environment variables.");
 
     try {
@@ -212,10 +267,11 @@ const generateText = async (
 
 // --- Exported Functions ---
 
-export const generateInitialScene = async (theme: string): Promise<SceneResponse> => {
+export const generateInitialScene = async (theme: string, language: string): Promise<SceneResponse> => {
   const prompt = `
     Start a new visual novel game.
     Theme: "${theme}"
+    Language: "${language}" (Output all narrative/text in this language)
     
     1. Create 3 heroines fitting this theme (Archetypes, Names, Visuals).
     2. Scene: Introductory scene fitting the theme.
@@ -232,6 +288,7 @@ export const generateNextScene = async (
 ): Promise<SceneResponse> => {
   const prompt = `
     Theme: "${currentState.theme}"
+    Language: "${currentState.language}" (Output all narrative/text in this language)
     Context:
     - Location: ${currentState.location}
     - Quest: ${currentState.currentQuest}
@@ -250,10 +307,11 @@ export const generateNextScene = async (
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
 
-export const generateSecretMemory = async (heroine: Heroine, theme: string): Promise<UnlockableCG & { imagePrompt: string }> => {
+export const generateSecretMemory = async (heroine: Heroine, theme: string, language: string): Promise<UnlockableCG & { imagePrompt: string }> => {
   const prompt = `
     Generate a 'Secret Memory' (Bonus CG) for ${heroine.name} (Archetype: ${heroine.archetype}).
     Theme: "${theme}"
+    Language: "${language}" (Output titles/descriptions in this language)
     Scene: A romantic, hypothetical future date or secret moment.
     Return JSON: { id, title, description, imagePrompt }.
   `;
@@ -263,7 +321,53 @@ export const generateSecretMemory = async (heroine: Heroine, theme: string): Pro
 export const generateSceneImage = async (prompt: string): Promise<string> => {
   const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k, cinematic lighting, detailed background. ${prompt}`;
 
-  if (AI_PROVIDER === 'siliconflow') {
+  // === CUSTOM IMAGE API ===
+  if (AI_PROVIDER === 'custom') {
+    if (CUSTOM_IMAGE_API_URL) {
+       try {
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json"
+          };
+          if (CUSTOM_API_KEY) {
+            headers["Authorization"] = `Bearer ${CUSTOM_API_KEY}`;
+          }
+
+          // Expecting OpenAI-compatible Image Generation Endpoint (e.g., /v1/images/generations)
+          const response = await fetch(CUSTOM_IMAGE_API_URL, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              prompt: enhancedPrompt,
+              n: 1,
+              size: "1024x1024", // Standard size
+              response_format: "b64_json" // Prefer base64 for immediate display
+            })
+          });
+
+          if (!response.ok) throw new Error("Custom Image API Error");
+          
+          const data = await response.json();
+          
+          // Handle Base64 or URL response
+          if (data.data?.[0]?.b64_json) {
+            return `data:image/jpeg;base64,${data.data[0].b64_json}`;
+          } else if (data.data?.[0]?.url) {
+             // Proxy URL through fetch to convert to base64 to avoid CORS if necessary, or just return URL
+             return data.data[0].url; 
+          }
+          throw new Error("Unknown response format from Custom Image API");
+       } catch (e) {
+         console.error("Custom Image Gen Error:", e);
+         return `https://placehold.co/1280x720/333/white?text=${encodeURIComponent("Custom API Error")}`;
+       }
+    } else {
+      // If no image API is provided, return a placeholder without erroring
+      return `https://placehold.co/1280x720/222/white?text=${encodeURIComponent("No Image API Configured")}`;
+    }
+  }
+
+  // === SILICONFLOW IMAGE ===
+  else if (AI_PROVIDER === 'siliconflow') {
     if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing");
 
     try {
@@ -289,6 +393,7 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
       const imageUrl = data.images?.[0]?.url;
       if (!imageUrl) throw new Error("No image URL returned");
 
+      // Fetch and convert to base64 to avoid hotlinking/CORS issues
       const imageRes = await fetch(imageUrl);
       const blob = await imageRes.blob();
       
@@ -302,7 +407,10 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
       console.error("SF Image Gen Error:", e);
       return `https://placehold.co/1280x720/pink/white?text=${encodeURIComponent("SiliconFlow Error")}`;
     }
-  } else {
+  } 
+  
+  // === GEMINI IMAGE (Default) ===
+  else {
     if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
     const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
     try {

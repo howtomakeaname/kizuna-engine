@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Music, User, Menu as MenuIcon } from 'lucide-react';
 import { GameState, Heroine } from '../types';
+import { TranslationType } from '../i18n/translations';
 
 interface SystemMenuProps {
   state: GameState;
@@ -11,10 +13,11 @@ interface SystemMenuProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
   processingBonusId: string | null;
+  t: TranslationType;
 }
 
 const SystemMenu: React.FC<SystemMenuProps> = ({ 
-  state, isOpen, onClose, onOpenGallery, onUnlockBonus, onOpenSave, onOpenLoad, processingBonusId 
+  state, isOpen, onClose, onOpenGallery, onUnlockBonus, onOpenSave, onOpenLoad, processingBonusId, t 
 }) => {
   const [activeTab, setActiveTab] = useState<'status' | 'inventory' | 'system'>('status');
 
@@ -29,7 +32,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
         <div className="bg-gradient-to-r from-pink-500 to-rose-500 p-4 flex items-center justify-between text-white shrink-0">
             <div className="flex items-center space-x-2">
                 <MenuIcon className="w-5 h-5" />
-                <h2 className="font-display font-bold text-lg tracking-wider">SYSTEM MENU</h2>
+                <h2 className="font-display font-bold text-lg tracking-wider">{t.menu.title}</h2>
             </div>
             <button onClick={onClose} className="p-1 hover:bg-white/20 rounded-full">
                 <X className="w-6 h-6" />
@@ -55,21 +58,21 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
                 className={`flex-1 py-3 text-sm font-bold flex items-center justify-center space-x-2 transition-colors ${activeTab === 'status' ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50' : 'text-gray-500 hover:text-pink-400'}`}
             >
                 <User className="w-4 h-4" />
-                <span>Heroines</span>
+                <span>{t.menu.tabs.heroines}</span>
             </button>
             <button 
                 onClick={() => setActiveTab('inventory')}
                 className={`flex-1 py-3 text-sm font-bold flex items-center justify-center space-x-2 transition-colors ${activeTab === 'inventory' ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50' : 'text-gray-500 hover:text-pink-400'}`}
             >
                 <Backpack className="w-4 h-4" />
-                <span>Items</span>
+                <span>{t.menu.tabs.items}</span>
             </button>
             <button 
                 onClick={() => setActiveTab('system')}
                 className={`flex-1 py-3 text-sm font-bold flex items-center justify-center space-x-2 transition-colors ${activeTab === 'system' ? 'text-pink-600 border-b-2 border-pink-600 bg-pink-50' : 'text-gray-500 hover:text-pink-400'}`}
             >
                 <Settings className="w-4 h-4" />
-                <span>System</span>
+                <span>{t.menu.tabs.system}</span>
             </button>
         </div>
 
@@ -124,7 +127,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
                                         : 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md hover:shadow-lg transform hover:scale-[1.01]'
                                     }`}
                                 >
-                                    {processingBonusId === heroine.id ? 'Reading Memory...' : <><LockOpen className="w-3 h-3" /> Unlock Special Memory</>}
+                                    {processingBonusId === heroine.id ? t.menu.actions.unlocking : <><LockOpen className="w-3 h-3" /> {t.menu.actions.unlock}</>}
                                 </button>
                             )}
                         </div>
@@ -136,7 +139,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
             {activeTab === 'inventory' && (
                 <div className="grid grid-cols-2 gap-3">
                     {state.inventory.length === 0 ? (
-                        <div className="col-span-2 text-center py-10 text-gray-400 italic">Your bag is empty.</div>
+                        <div className="col-span-2 text-center py-10 text-gray-400 italic">{t.menu.emptyBag}</div>
                     ) : (
                         state.inventory.map((item, idx) => (
                             <div key={idx} className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center space-x-2">
@@ -155,16 +158,16 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 gap-3">
                         <button onClick={onOpenSave} className="bg-white border-2 border-gray-100 hover:border-pink-300 p-4 rounded-xl text-left shadow-sm transition-all group">
-                            <div className="font-bold text-gray-700 group-hover:text-pink-600">Save Game</div>
-                            <div className="text-xs text-gray-400">Record your progress manually.</div>
+                            <div className="font-bold text-gray-700 group-hover:text-pink-600">{t.menu.actions.save}</div>
+                            <div className="text-xs text-gray-400">{t.menu.actions.saveDesc}</div>
                         </button>
                         <button onClick={onOpenLoad} className="bg-white border-2 border-gray-100 hover:border-pink-300 p-4 rounded-xl text-left shadow-sm transition-all group">
-                            <div className="font-bold text-gray-700 group-hover:text-pink-600">Load Game</div>
-                            <div className="text-xs text-gray-400">Return to a previous timeline.</div>
+                            <div className="font-bold text-gray-700 group-hover:text-pink-600">{t.menu.actions.load}</div>
+                            <div className="text-xs text-gray-400">{t.menu.actions.loadDesc}</div>
                         </button>
                         <button onClick={onOpenGallery} className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-xl text-left shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.01]">
-                            <div className="font-bold flex items-center"><Music className="w-4 h-4 mr-2" /> Memory Gallery</div>
-                            <div className="text-xs text-purple-200">View unlocked CGs and Events.</div>
+                            <div className="font-bold flex items-center"><Music className="w-4 h-4 mr-2" /> {t.menu.actions.gallery}</div>
+                            <div className="text-xs text-purple-200">{t.menu.actions.galleryDesc}</div>
                         </button>
                     </div>
                 </div>
@@ -172,7 +175,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
         </div>
 
         <div className="p-3 text-center text-[10px] text-gray-400 bg-gray-100">
-            Kizuna Engine v2.0 • Turn {state.turnCount} • {state.theme}
+            Kizuna Engine v2.0 • {t.game.turn} {state.turnCount} • {state.theme}
         </div>
       </div>
     </div>

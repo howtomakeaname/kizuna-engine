@@ -1,13 +1,16 @@
+
 import React, { useEffect, useState } from 'react';
 import { X, Image as ImageIcon, Calendar, Loader2 } from 'lucide-react';
 import { SavedCG } from '../types';
 import { getGallery } from '../services/db';
+import { TranslationType } from '../i18n/translations';
 
 interface GalleryProps {
   onClose: () => void;
+  t: TranslationType;
 }
 
-const Gallery: React.FC<GalleryProps> = ({ onClose }) => {
+const Gallery: React.FC<GalleryProps> = ({ onClose, t }) => {
   const [images, setImages] = useState<SavedCG[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<SavedCG | null>(null);
@@ -34,7 +37,7 @@ const Gallery: React.FC<GalleryProps> = ({ onClose }) => {
         <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center space-x-3">
             <ImageIcon className="w-6 h-6" />
-            <h2 className="text-2xl font-display font-bold">Event CG Gallery</h2>
+            <h2 className="text-2xl font-display font-bold">{t.gallery.title}</h2>
           </div>
           <button 
             onClick={onClose}
@@ -49,13 +52,13 @@ const Gallery: React.FC<GalleryProps> = ({ onClose }) => {
           {loading ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
               <Loader2 className="w-12 h-12 animate-spin mb-4 text-purple-500" />
-              <p>Loading Memories...</p>
+              <p>{t.gallery.loading}</p>
             </div>
           ) : images.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-300 rounded-xl">
               <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
-              <p className="text-lg font-medium">No memories unlocked yet.</p>
-              <p className="text-sm">Play the story to unlock special events.</p>
+              <p className="text-lg font-medium">{t.gallery.empty}</p>
+              <p className="text-sm">{t.gallery.emptyDesc}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -99,7 +102,7 @@ const Gallery: React.FC<GalleryProps> = ({ onClose }) => {
           <div className="mt-4 text-white text-center">
             <h3 className="text-2xl font-bold">{selectedImage.title}</h3>
             <p className="text-gray-400 max-w-xl mx-auto mt-2">{selectedImage.description}</p>
-            <p className="text-xs text-gray-500 mt-2">Click anywhere to close</p>
+            <p className="text-xs text-gray-500 mt-2">{t.gallery.close}</p>
           </div>
         </div>
       )}
