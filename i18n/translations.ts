@@ -1,5 +1,4 @@
 
-
 export const translations = {
   en: {
     start: {
@@ -38,7 +37,9 @@ export const translations = {
       auto: "Auto",
       hideUi: "Hide UI",
       specialEvent: "SPECIAL EVENT",
-      menu: "Menu"
+      menu: "Menu",
+      generatingImage: "Generating new background...",
+      download: "Download"
     },
     menu: {
       title: "SYSTEM MENU",
@@ -119,7 +120,9 @@ export const translations = {
       auto: "自动",
       hideUi: "隐藏UI",
       specialEvent: "特殊事件",
-      menu: "菜单"
+      menu: "菜单",
+      generatingImage: "正在生成新背景...",
+      download: "下载图片"
     },
     menu: {
       title: "系统菜单",
@@ -200,7 +203,9 @@ export const translations = {
       auto: "オート",
       hideUi: "UI非表示",
       specialEvent: "スペシャルイベント",
-      menu: "メニュー"
+      menu: "メニュー",
+      generatingImage: "背景を生成中...",
+      download: "ダウンロード"
     },
     menu: {
       title: "システムメニュー",
@@ -281,7 +286,9 @@ export const translations = {
       auto: "Авто",
       hideUi: "Скрыть UI",
       specialEvent: "ОСОБОЕ СОБЫТИЕ",
-      menu: "Меню"
+      menu: "Меню",
+      generatingImage: "Генерация фона...",
+      download: "Скачать"
     },
     menu: {
       title: "СИСТЕМНОЕ МЕНЮ",
@@ -362,7 +369,9 @@ export const translations = {
       auto: "Auto",
       hideUi: "Masquer UI",
       specialEvent: "ÉVÉNEMENT SPÉCIAL",
-      menu: "Menu"
+      menu: "Menu",
+      generatingImage: "Génération du fond...",
+      download: "Télécharger"
     },
     menu: {
       title: "MENU SYSTÈME",

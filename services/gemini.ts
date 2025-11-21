@@ -25,7 +25,7 @@ const sceneSchema: Schema = {
     },
     choices: {
       type: Type.ARRAY,
-      description: "3 distinct choices for the player.",
+      description: "Array of choices. If it is a conversation turn, provide exactly 1 choice 'Next'. If it is a decision point, provide 3 distinct choices.",
       items: {
         type: Type.OBJECT,
         properties: {
@@ -66,11 +66,12 @@ const sceneSchema: Schema = {
     },
     imagePrompt: {
       type: Type.STRING,
-      description: "A highly detailed prompt for an image generator. Matches the visual style of the theme.",
+      description: "A highly detailed prompt for an image generator. Return NULL if the scene background has not changed significantly from the previous turn.",
+      nullable: true
     },
     unlockCg: {
       type: Type.OBJECT,
-      description: "Only provide this if the scene is a major romantic event (Confession, Kiss, Date).",
+      description: "Only provide this if the scene is a major romantic event (Affection > 80).",
       properties: {
         id: { type: Type.STRING },
         title: { type: Type.STRING },
@@ -114,7 +115,7 @@ const getJsonSchemaInstruction = () => `
     "inventory": ["string"],
     "currentQuest": "string",
     "location": "string",
-    "imagePrompt": "string",
+    "imagePrompt": "string (OR null if scene/bg has NOT changed)",
     "unlockCg": { "id": "string", "title": "string", "description": "string" } (optional, use null),
     "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical)",
     "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, None)"
@@ -145,7 +146,8 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 **Game Rules**:
 1. Track affection (0-100).
 2. Update 'unlockCg' ONLY for major milestones (Affection > 80 events).
-3. Return JSON only.
+3. Optimize resources: Do NOT generate a new 'imagePrompt' if the visual background has not changed. Use null.
+4. Return JSON only.
 `;
 
 // --- Core Generation Logic ---
@@ -278,6 +280,7 @@ export const generateInitialScene = async (theme: string, language: string): Pro
     3. Intro text: 1 sentence greeting or action from a main heroine.
     4. 3 Choices for the player to start the story.
     5. Suggest BGM and Sound Effect.
+    6. IMPORTANT: "imagePrompt" MUST be provided (cannot be null) for the first scene.
   `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
@@ -286,6 +289,12 @@ export const generateNextScene = async (
   currentState: GameState,
   choiceId: string
 ): Promise<SceneResponse> => {
+  
+  // Pacing Logic: Every 4th turn is a major decision (Turns 4, 8, 12...)
+  // Otherwise, it's a conversation continuation.
+  const nextTurn = currentState.turnCount + 1;
+  const isDecisionTurn = nextTurn % 4 === 0;
+
   const prompt = `
     Theme: "${currentState.theme}"
     Language: "${currentState.language}" (Output all narrative/text in this language)
@@ -298,10 +307,13 @@ export const generateNextScene = async (
     Action: Player chose "${currentState.choices.find(c => c.id === choiceId)?.text}".
 
     Task:
-    1. Write 1-2 sentences of reaction/dialogue.
+    1. Write 1-2 sentences of reaction/dialogue based on the action.
     2. Update stats.
-    3. Provide 3 choices.
-    4. New image prompt.
+    3. **Choices Generation**:
+       ${isDecisionTurn 
+         ? "This is a MAJOR DECISION point. Provide 3 distinct, diverging choices that affect the plot or relationships." 
+         : "This is a CONVERSATION step. Provide exactly 1 linear choice: [{ 'id': 'continue', 'text': 'Next' }] to advance the dialogue naturally."}
+    4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. **If the background is the same, strictly return NULL for imagePrompt to save costs.**
     5. Suggest BGM (mood) and SFX.
   `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);

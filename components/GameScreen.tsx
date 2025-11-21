@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { GameState, Choice } from '../types';
-import { MessageCircle, Sparkles, Image as ImageIcon, FastForward, SkipForward, Menu, Settings, EyeOff, History } from 'lucide-react';
+import { MessageCircle, Sparkles, Image as ImageIcon, FastForward, SkipForward, Menu, Settings, EyeOff, History, ChevronRight, Loader2 } from 'lucide-react';
 import { TranslationType } from '../i18n/translations';
 
 interface GameScreenProps {
@@ -10,6 +10,7 @@ interface GameScreenProps {
   onChoiceSelected: (choiceId: string) => void;
   onToggleMenu: () => void;
   isProcessing: boolean;
+  isImageLoading: boolean;
   t: TranslationType;
 }
 
@@ -19,6 +20,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
   onChoiceSelected, 
   onToggleMenu,
   isProcessing,
+  isImageLoading,
   t
 }) => {
   const [typedNarrative, setTypedNarrative] = useState('');
@@ -29,6 +31,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
   
   const typingSpeed = 20; 
   const narrativeRef = useRef<HTMLParagraphElement>(null);
+
+  // Check if the current scene is linear (only 1 choice)
+  const isLinearScene = gameState.choices.length === 1;
 
   // Parse Character Name from Narrative
   const splitDialogue = (text: string) => {
@@ -82,6 +87,28 @@ const GameScreen: React.FC<GameScreenProps> = ({
     }
   }, [typedNarrative, isTyping, dialogueContent, isSkipMode]);
 
+  // Auto-Advance/Skip Logic for Linear Scenes
+  useEffect(() => {
+    if (isSkipMode && isLinearScene && !isTyping && !isProcessing) {
+        const timer = setTimeout(() => {
+            onChoiceSelected(gameState.choices[0].id);
+        }, 1000); // 1 second delay to barely see the text
+        return () => clearTimeout(timer);
+    }
+  }, [isSkipMode, isLinearScene, isTyping, isProcessing, gameState.choices, onChoiceSelected]);
+
+  // Handle user click on text box or screen
+  const handleScreenClick = () => {
+    if (isTyping) {
+        // Finish typing immediately
+        setTypedNarrative(dialogueContent);
+        setIsTyping(false);
+    } else if (isLinearScene && !isProcessing) {
+        // If linear, proceed to next scene
+        onChoiceSelected(gameState.choices[0].id);
+    }
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-black select-none group">
       
@@ -93,6 +120,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
           filter: isProcessing ? 'blur(2px) brightness(0.9)' : 'none',
           transform: isProcessing ? 'scale(1.02)' : 'scale(1)'
         }}
+        onClick={hideUI ? () => setHideUI(false) : undefined} 
       />
 
       {/* Hide UI Toggle Area */}
@@ -113,6 +141,14 @@ const GameScreen: React.FC<GameScreenProps> = ({
             <div className="bg-white/90 text-black px-4 py-1 rounded-b-lg text-xs font-medium shadow-lg">
                 {t.game.turn} {gameState.turnCount}
             </div>
+        </div>
+      )}
+
+      {/* Image Generating Indicator (Bottom Left) */}
+      {!hideUI && isImageLoading && (
+        <div className="absolute bottom-32 left-6 z-20 flex items-center space-x-2 bg-black/70 backdrop-blur-md text-white px-4 py-2 rounded-full shadow-lg border border-white/10 animate-pulse">
+            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
+            <span className="text-xs font-bold tracking-wide">{t.game.generatingImage}</span>
         </div>
       )}
 
@@ -160,8 +196,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </div>
       )}
 
-      {/* Choices Overlay - Centered */}
-      {!hideUI && !isProcessing && (!isTyping || isSkipMode) && (
+      {/* Choices Overlay - Centered (Only for Decision Mode) */}
+      {!hideUI && !isProcessing && (!isTyping || isSkipMode) && !isLinearScene && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 pointer-events-none">
             {gameState.choices.map((choice, idx) => (
                 <button
@@ -204,8 +240,8 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
                 {/* Main Text Box */}
                 <div 
-                    className="bg-slate-900/85 backdrop-blur-xl border-t-2 border-pink-400/50 rounded-xl rounded-tl-none shadow-2xl p-6 md:p-8 min-h-[160px] relative overflow-hidden cursor-pointer"
-                    onClick={() => isTyping ? setTypedNarrative(dialogueContent) : null}
+                    className={`bg-slate-900/85 backdrop-blur-xl border-t-2 border-pink-400/50 rounded-xl rounded-tl-none shadow-2xl p-6 md:p-8 min-h-[160px] relative overflow-hidden cursor-pointer transition-colors hover:bg-slate-900/90`}
+                    onClick={handleScreenClick}
                 >
                     {/* Decorative lines */}
                     <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-pink-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
@@ -215,17 +251,22 @@ const GameScreen: React.FC<GameScreenProps> = ({
                         {typedNarrative}
                         {!isSkipMode && isTyping && <span className="inline-block w-2 h-6 ml-1 bg-pink-500 animate-pulse align-middle"></span>}
                     </p>
+                    
+                    {/* Click to Continue Indicator (Blinking Arrow) */}
+                    {!isTyping && !isProcessing && isLinearScene && (
+                        <div className="absolute bottom-4 right-4 animate-bounce text-pink-500">
+                            <ChevronRight className="w-8 h-8" />
+                        </div>
+                    )}
 
                     {/* Text Box Controls */}
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">{t.game.log}</button>
+                    <div className="absolute bottom-4 right-14 flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
                         <button 
                             className={`text-xs font-bold uppercase px-2 ${isSkipMode ? 'text-pink-400' : 'text-gray-400 hover:text-white'}`}
                             onClick={(e) => { e.stopPropagation(); setIsSkipMode(!isSkipMode); }}
                         >
                             {t.game.skip}
                         </button>
-                        <button className="text-xs text-gray-400 hover:text-white font-bold uppercase px-2">{t.game.auto}</button>
                     </div>
                 </div>
             </div>

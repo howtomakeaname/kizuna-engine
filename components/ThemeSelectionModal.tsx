@@ -37,7 +37,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
       <div className="bg-gray-900/90 backdrop-blur-md border border-white/10 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-300">
         
         {/* Header */}
-        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-pink-900/40 to-purple-900/40">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-pink-900/40 to-rose-900/40">
           <div className="flex items-center text-pink-400">
             <Palette className="w-6 h-6 mr-3" />
             <h2 className="text-2xl font-display font-bold text-white tracking-wide">{t.theme.title}</h2>
@@ -76,7 +76,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
             {/* Custom Theme Option */}
             <div className={`rounded-xl border transition-all duration-200 p-1 ${
                 isCustomTheme 
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-400 shadow-lg' 
+                ? 'bg-gradient-to-r from-pink-600 to-rose-600 border-pink-400 shadow-lg' 
                 : 'bg-white/5 border-white/5 hover:bg-white/10'
             }`}>
                  <div className="p-3">
@@ -84,7 +84,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
                         onClick={() => setIsCustomTheme(true)}
                         className="w-full flex items-center text-left mb-3"
                     >
-                        <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center transition-colors ${isCustomTheme ? 'border-white bg-white text-purple-600' : 'border-gray-500'}`}>
+                        <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center transition-colors ${isCustomTheme ? 'border-white bg-white text-pink-600' : 'border-gray-500'}`}>
                             {isCustomTheme && <div className="w-2 h-2 bg-current rounded-full" />}
                         </div>
                         <span className={`font-medium text-lg flex items-center ${isCustomTheme ? 'text-white' : 'text-gray-300'}`}>

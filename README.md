@@ -76,6 +76,6 @@ CUSTOM_MODEL_NAME=meta-llama/Meta-Llama-3-70B-Instruct
 ## Features
 - **Themes**: Choose from High School, Magic, Maid Cafe, Isekai, or create your own.
 - **Infinite Story**: The plot is generated on the fly.
-- **Multilingual**: Full support for English, Chinese, Japanese, Russian, and French.
+- **Multilingual**: Full support for English, Chinese, Russian, French, Japanese.
 - **Gallery**: Save your favorite scenes and unlocked memories.
 - **Save/Load**: Auto-save support and manual slots.

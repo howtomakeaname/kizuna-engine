@@ -22,6 +22,7 @@ const App: React.FC = () => {
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingBonusId, setProcessingBonusId] = useState<string | null>(null);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   
   // Language State
   const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
@@ -113,49 +114,70 @@ const App: React.FC = () => {
 
   // Update Game State & Generate Image
   const updateGameState = async (scene: SceneResponse, theme: string, language: string, isReset: boolean = false) => {
-    setGameState(prevState => ({
+    // Optimistic UI update: Set game state first (so text appears)
+    // Then load image in background if needed.
+    
+    const previousImage = isReset ? undefined : gameState?.currentBgImage;
+    const newPrompt = scene.imagePrompt;
+    
+    // We use a temp variable for the new state to save it properly later
+    let nextState: GameState = {
       narrative: scene.narrative,
       choices: scene.choices,
       heroines: scene.heroines,
       inventory: scene.inventory,
       currentQuest: scene.currentQuest,
       location: scene.location,
-      imagePrompt: scene.imagePrompt,
-      turnCount: isReset ? 1 : (prevState?.turnCount || 0) + 1,
-      history: prevState ? [...prevState.history, scene.narrative] : [scene.narrative],
+      imagePrompt: newPrompt || (gameState?.imagePrompt || ""),
+      turnCount: isReset ? 1 : (gameState?.turnCount || 0) + 1,
+      history: gameState ? [...gameState.history, scene.narrative] : [scene.narrative],
       unlockCg: scene.unlockCg,
-      currentBgImage: isReset ? undefined : prevState?.currentBgImage,
+      currentBgImage: previousImage, // Default to previous until new one loads
       theme: theme,
       bgm: scene.bgm, 
       soundEffect: scene.soundEffect,
       language: language
-    }));
-    
+    };
+
+    setGameState(nextState);
     setStatus(GameStatus.PLAYING);
 
-    try {
-      const imageUrl = await generateSceneImage(scene.imagePrompt);
-      setBgImage(imageUrl);
-      
-      setGameState(prev => {
-        const updatedState = prev ? { ...prev, currentBgImage: imageUrl } : null;
-        if (updatedState) {
-          saveGame('autosave', updatedState).catch(e => console.warn("Auto-save failed:", e));
+    // Image Generation Logic
+    // If imagePrompt is provided (not null), we generate a new image.
+    // Otherwise, we keep the old one.
+    if (newPrompt) {
+      setIsImageLoading(true);
+      try {
+        const imageUrl = await generateSceneImage(newPrompt);
+        setBgImage(imageUrl);
+        
+        // Update state with the new image for saving
+        nextState = { ...nextState, currentBgImage: imageUrl };
+        setGameState(nextState);
+
+        // Save to gallery
+        await saveCGToGallery({
+          id: `bg_${Date.now()}`,
+          title: scene.location,
+          description: `Turn ${nextState.turnCount}: ${scene.currentQuest}`
+        }, imageUrl, 'scene');
+
+        // Save unlockable CG if present
+        if (scene.unlockCg) {
+          saveCGToGallery(scene.unlockCg, imageUrl, 'event').catch(console.error);
         }
-        return updatedState;
-      });
 
-      await saveCGToGallery({
-        id: `bg_${Date.now()}`,
-        title: scene.location,
-        description: `Turn ${isReset ? 1 : (gameState?.turnCount || 0) + 1}: ${scene.currentQuest}`
-      }, imageUrl, 'scene');
-
-      if (scene.unlockCg) {
-        saveCGToGallery(scene.unlockCg, imageUrl, 'event').catch(console.error);
+      } catch (e) {
+        console.error("Image gen failed", e);
+        // Fallback or keep previous
+      } finally {
+        setIsImageLoading(false);
       }
-    } catch (e) {
-      console.error("Image gen failed", e);
+    }
+
+    // Auto-save
+    if (nextState.currentBgImage) {
+       saveGame('autosave', nextState).catch(e => console.warn("Auto-save failed:", e));
     }
   };
 
@@ -208,7 +230,7 @@ const App: React.FC = () => {
         <div className="relative z-10 max-w-4xl w-full p-8 flex flex-col items-center justify-center h-full">
           
           <div className="text-center mb-12 animate-in fade-in slide-in-from-top-10 duration-1000">
-            <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-purple-600 mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
+            <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
               {t.start.title}
             </h1>
             <p className="text-2xl md:text-3xl text-pink-100 font-light tracking-[0.2em] uppercase opacity-90">
@@ -306,6 +328,7 @@ const App: React.FC = () => {
             onChoiceSelected={handleChoice}
             onToggleMenu={() => setIsMenuOpen(true)}
             isProcessing={status === GameStatus.LOADING_SCENE}
+            isImageLoading={isImageLoading}
             t={t}
           />
         )}

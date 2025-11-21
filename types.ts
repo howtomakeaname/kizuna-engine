@@ -50,7 +50,7 @@ export interface SceneResponse {
   inventory: string[];
   currentQuest: string;
   location: string;
-  imagePrompt: string;
+  imagePrompt: string | null; // Nullable to save generation costs
   unlockCg?: UnlockableCG; // Optional CG unlock data
   bgm?: string; // Suggested BGM mood
   soundEffect?: string; // One-shot SFX

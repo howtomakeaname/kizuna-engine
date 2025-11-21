@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Music, User, Menu as MenuIcon, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Image as ImageIcon, User, Menu as MenuIcon, Volume2, VolumeX } from 'lucide-react';
 import { GameState, Heroine } from '../types';
 import { TranslationType } from '../i18n/translations';
 
@@ -205,9 +205,9 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
                             <div className="font-bold text-gray-700 group-hover:text-pink-600">{t.menu.actions.load}</div>
                             <div className="text-xs text-gray-400">{t.menu.actions.loadDesc}</div>
                         </button>
-                        <button onClick={onOpenGallery} className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 rounded-xl text-left shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.01]">
-                            <div className="font-bold flex items-center"><Music className="w-4 h-4 mr-2" /> {t.menu.actions.gallery}</div>
-                            <div className="text-xs text-purple-200">{t.menu.actions.galleryDesc}</div>
+                        <button onClick={onOpenGallery} className="bg-gradient-to-r from-pink-500 to-rose-600 text-white p-4 rounded-xl text-left shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.01]">
+                            <div className="font-bold flex items-center"><ImageIcon className="w-4 h-4 mr-2" /> {t.menu.actions.gallery}</div>
+                            <div className="text-xs text-pink-100">{t.menu.actions.galleryDesc}</div>
                         </button>
                     </div>
                 </div>

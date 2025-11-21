@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Heart, Backpack, MapPin, Target, Image as ImageIcon, LockOpen, Save, RotateCcw } from 'lucide-react';
 import { GameState, Heroine } from '../types';
@@ -52,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ state, onOpenGallery, onUnlockBonus, 
           </button>
           <button 
             onClick={onOpenGallery}
-            className="col-span-2 flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md transform hover:scale-[1.02]"
+            className="col-span-2 flex items-center justify-center space-x-2 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md transform hover:scale-[1.02]"
           >
             <ImageIcon className="w-5 h-5" />
             <span>Open Gallery</span>
