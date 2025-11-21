@@ -1,7 +1,7 @@
 
 # Kizuna Engine - 羁绊引擎 (Infinite Galgame)
 
-![开始画面](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
+![开始画面](https://img.cdn1.vip/i/692052deb29bc_1763726046.webp)
 
 ![Game View 1](https://img.cdn1.vip/i/692051d06f083_1763725776.webp)
 

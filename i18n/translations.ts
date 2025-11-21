@@ -143,7 +143,7 @@ export const translations = {
       load: "读取进度",
       gallery: "画廊",
       config: "设置",
-      poweredBy: "技术支持",
+      poweredBy: "POWERED BY",
       enterName: "输入你的名字",
       namePlaceholder: "主人公",
       startJourney: "开启旅程",
