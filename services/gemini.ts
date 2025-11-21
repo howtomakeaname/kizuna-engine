@@ -2,8 +2,9 @@ import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
 
 // --- Configuration ---
+// Variables are injected via vite.config.ts based on process.env
 const AI_PROVIDER = process.env.AI_PROVIDER || 'gemini'; // 'gemini' | 'siliconflow'
-const GEMINI_KEY = process.env.API_KEY;
+const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY;
 const SILICONFLOW_KEY = process.env.SILICONFLOW_API_KEY;
 
 // --- Schemas ---
@@ -59,7 +60,7 @@ const sceneSchema: Schema = {
     },
     imagePrompt: {
       type: Type.STRING,
-      description: "A highly detailed prompt for an image generator. Visual novel style background.",
+      description: "A highly detailed prompt for an image generator. Matches the visual style of the theme.",
     },
     unlockCg: {
       type: Type.OBJECT,
@@ -87,7 +88,7 @@ const secretMemorySchema: Schema = {
   required: ["id", "title", "description", "imagePrompt"]
 };
 
-// SiliconFlow Text Schema Representation
+// SiliconFlow Text Schema Representation (Manual instruction for DeepSeek/Qwen)
 const getJsonSchemaInstruction = () => `
   You must output strictly valid JSON. 
   Follow this schema structure exactly:
@@ -115,12 +116,12 @@ const getSecretMemorySchemaInstruction = () => `
 `;
 
 const SYSTEM_INSTRUCTION = `
-You are 'Kizuna Engine', a game master for a Japanese High School Visual Novel.
+You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 **CRITICAL STYLE RULES**:
 1. **EXTREME CONCISENESS**: Output must be 1-2 sentences MAX.
 2. **Dialogue-First**: Prioritize what characters say. Format: "Name: 'Dialogue'".
 3. **No Prose**: Do not write long descriptions of the wind or feelings. Show, don't tell.
-4. **Anime Tropes**: Lean into tropes (Tsundere blushing, childhood friend pouting).
+4. **Anime Tropes**: Lean into tropes appropriate for the theme.
 
 **Game Rules**:
 1. Track affection (0-100).
@@ -140,38 +141,49 @@ const generateText = async (
   if (AI_PROVIDER === 'siliconflow') {
     if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing in environment variables.");
 
-    const response = await fetch("https://api.siliconflow.cn/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${SILICONFLOW_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "deepseek-ai/DeepSeek-V3", 
-        messages: [
-          { role: "system", content: SYSTEM_INSTRUCTION + "\n\n" + schemaInstruction },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 4096,
-        temperature: 1.0
-      })
-    });
+    try {
+      const response = await fetch("https://api.siliconflow.cn/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${SILICONFLOW_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "deepseek-ai/DeepSeek-V3", 
+          messages: [
+            { role: "system", content: SYSTEM_INSTRUCTION + "\n\n" + schemaInstruction },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 4096,
+          temperature: 1.0
+        })
+      });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`SiliconFlow API Error: ${response.status} - ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("SiliconFlow Error Details:", errText);
+        throw new Error(`SiliconFlow API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      if (!content) throw new Error("No content received from SiliconFlow");
+      
+      // DeepSeek sometimes returns markdown code blocks despite json_object mode
+      const cleanContent = content.replace(/```json\n?|```/g, "").trim();
+      
+      return JSON.parse(cleanContent);
+    } catch (e) {
+      console.error("SiliconFlow Text Gen Failed", e);
+      throw e;
     }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("No content received from SiliconFlow");
-    
-    return JSON.parse(content);
   } 
   
   // === GEMINI (Default) ===
   else {
+    if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
     const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -191,13 +203,15 @@ const generateText = async (
 
 // --- Exported Functions ---
 
-export const generateInitialScene = async (): Promise<SceneResponse> => {
+export const generateInitialScene = async (theme: string): Promise<SceneResponse> => {
   const prompt = `
-    Start a new game.
-    1. Create 3 heroines (Osananajimi, Tsundere, Kouhai).
-    2. Scene: School entrance, cherry blossoms.
-    3. Intro text: 1 sentence greeting from the childhood friend.
-    4. 3 Choices.
+    Start a new visual novel game.
+    Theme: "${theme}"
+    
+    1. Create 3 heroines fitting this theme (Archetypes, Names, Visuals).
+    2. Scene: Introductory scene fitting the theme.
+    3. Intro text: 1 sentence greeting or action from a main heroine.
+    4. 3 Choices for the player to start the story.
   `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
@@ -207,6 +221,7 @@ export const generateNextScene = async (
   choiceId: string
 ): Promise<SceneResponse> => {
   const prompt = `
+    Theme: "${currentState.theme}"
     Context:
     - Location: ${currentState.location}
     - Quest: ${currentState.currentQuest}
@@ -224,9 +239,10 @@ export const generateNextScene = async (
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
 
-export const generateSecretMemory = async (heroine: Heroine): Promise<UnlockableCG & { imagePrompt: string }> => {
+export const generateSecretMemory = async (heroine: Heroine, theme: string): Promise<UnlockableCG & { imagePrompt: string }> => {
   const prompt = `
     Generate a 'Secret Memory' (Bonus CG) for ${heroine.name} (Archetype: ${heroine.archetype}).
+    Theme: "${theme}"
     Scene: A romantic, hypothetical future date or secret moment.
     Return JSON: { id, title, description, imagePrompt }.
   `;
@@ -234,7 +250,7 @@ export const generateSecretMemory = async (heroine: Heroine): Promise<Unlockable
 };
 
 export const generateSceneImage = async (prompt: string): Promise<string> => {
-  const enhancedPrompt = `Anime art style, visual novel background, Makoto Shinkai style, high quality, 4k. ${prompt}`;
+  const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k. ${prompt}`;
 
   // === SILICONFLOW (Qwen-Image) ===
   if (AI_PROVIDER === 'siliconflow') {
@@ -250,14 +266,19 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
         body: JSON.stringify({
           model: "Qwen/Qwen-Image",
           prompt: enhancedPrompt,
-          image_size: "1664x928", // 16:9 Aspect Ratio
+          image_size: "1664x928", // 16:9 Aspect Ratio supported by Qwen-Image
           seed: Math.floor(Math.random() * 999999999)
         })
       });
 
-      if (!response.ok) throw new Error("SiliconFlow Image Gen failed");
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("SF Image Error:", errText);
+        throw new Error("SiliconFlow Image Gen failed");
+      }
       
       const data = await response.json();
+      // Qwen returns object with "images": [{ "url": "..." }]
       const imageUrl = data.images?.[0]?.url;
       if (!imageUrl) throw new Error("No image URL returned");
 
@@ -280,6 +301,7 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
   
   // === GEMINI (Imagen) ===
   else {
+    if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
     const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
     try {
       const response = await ai.models.generateImages({

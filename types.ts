@@ -36,6 +36,7 @@ export interface GameState {
   history: string[]; // Summary of past events to feed back to context
   unlockCg?: UnlockableCG; // If present, the current scene is a special CG event
   currentBgImage?: string; // Used for saving the game state with the image
+  theme: string; // The current active theme of the story
 }
 
 export interface SceneResponse {
