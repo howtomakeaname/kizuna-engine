@@ -37,6 +37,8 @@ export interface GameState {
   unlockCg?: UnlockableCG; // If present, the current scene is a special CG event
   currentBgImage?: string; // Used for saving the game state with the image
   theme: string; // The current active theme of the story
+  bgm?: string; // Current background music mood
+  soundEffect?: string; // Immediate sound effect to play
 }
 
 export interface SceneResponse {
@@ -48,6 +50,8 @@ export interface SceneResponse {
   location: string;
   imagePrompt: string;
   unlockCg?: UnlockableCG; // Optional CG unlock data
+  bgm?: string; // Suggested BGM mood
+  soundEffect?: string; // One-shot SFX
 }
 
 export interface SaveSlot {

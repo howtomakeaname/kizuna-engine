@@ -2,8 +2,7 @@ import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
 
 // --- Configuration ---
-// Variables are injected via vite.config.ts based on process.env
-const AI_PROVIDER = process.env.AI_PROVIDER || 'gemini'; // 'gemini' | 'siliconflow'
+const AI_PROVIDER = process.env.AI_PROVIDER || 'gemini';
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY;
 const SILICONFLOW_KEY = process.env.SILICONFLOW_API_KEY;
 
@@ -73,6 +72,15 @@ const sceneSchema: Schema = {
       required: ["id", "title", "description"],
       nullable: true
     },
+    bgm: {
+      type: Type.STRING,
+      description: "The mood of the music. Options: 'SliceOfLife', 'Sentimental', 'Tension', 'Action', 'Mystery', 'Romantic', 'Comical', 'Magical'.",
+    },
+    soundEffect: {
+      type: Type.STRING,
+      description: "Optional sound effect. Options: 'SchoolBell', 'DoorOpen', 'Footsteps', 'Heartbeat', 'Explosion', 'MagicChime', 'None'.",
+      nullable: true
+    }
   },
   required: ["narrative", "choices", "heroines", "inventory", "currentQuest", "location", "imagePrompt"],
 };
@@ -88,7 +96,7 @@ const secretMemorySchema: Schema = {
   required: ["id", "title", "description", "imagePrompt"]
 };
 
-// SiliconFlow Text Schema Representation (Manual instruction for DeepSeek/Qwen)
+// SiliconFlow Text Schema Representation
 const getJsonSchemaInstruction = () => `
   You must output strictly valid JSON. 
   Follow this schema structure exactly:
@@ -100,7 +108,9 @@ const getJsonSchemaInstruction = () => `
     "currentQuest": "string",
     "location": "string",
     "imagePrompt": "string",
-    "unlockCg": { "id": "string", "title": "string", "description": "string" } (optional, use null if no event)
+    "unlockCg": { "id": "string", "title": "string", "description": "string" } (optional, use null),
+    "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical)",
+    "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, None)"
   }
 `;
 
@@ -120,8 +130,9 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 **CRITICAL STYLE RULES**:
 1. **EXTREME CONCISENESS**: Output must be 1-2 sentences MAX.
 2. **Dialogue-First**: Prioritize what characters say. Format: "Name: 'Dialogue'".
-3. **No Prose**: Do not write long descriptions of the wind or feelings. Show, don't tell.
+3. **No Prose**: Do not write long descriptions. Show, don't tell.
 4. **Anime Tropes**: Lean into tropes appropriate for the theme.
+5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene.
 
 **Game Rules**:
 1. Track affection (0-100).
@@ -171,9 +182,7 @@ const generateText = async (
       
       if (!content) throw new Error("No content received from SiliconFlow");
       
-      // DeepSeek sometimes returns markdown code blocks despite json_object mode
       const cleanContent = content.replace(/```json\n?|```/g, "").trim();
-      
       return JSON.parse(cleanContent);
     } catch (e) {
       console.error("SiliconFlow Text Gen Failed", e);
@@ -212,6 +221,7 @@ export const generateInitialScene = async (theme: string): Promise<SceneResponse
     2. Scene: Introductory scene fitting the theme.
     3. Intro text: 1 sentence greeting or action from a main heroine.
     4. 3 Choices for the player to start the story.
+    5. Suggest BGM and Sound Effect.
   `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
@@ -235,6 +245,7 @@ export const generateNextScene = async (
     2. Update stats.
     3. Provide 3 choices.
     4. New image prompt.
+    5. Suggest BGM (mood) and SFX.
   `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
@@ -250,9 +261,8 @@ export const generateSecretMemory = async (heroine: Heroine, theme: string): Pro
 };
 
 export const generateSceneImage = async (prompt: string): Promise<string> => {
-  const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k. ${prompt}`;
+  const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k, cinematic lighting, detailed background. ${prompt}`;
 
-  // === SILICONFLOW (Qwen-Image) ===
   if (AI_PROVIDER === 'siliconflow') {
     if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing");
 
@@ -266,24 +276,19 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
         body: JSON.stringify({
           model: "Qwen/Qwen-Image",
           prompt: enhancedPrompt,
-          image_size: "1664x928", // 16:9 Aspect Ratio supported by Qwen-Image
+          image_size: "1664x928",
           seed: Math.floor(Math.random() * 999999999)
         })
       });
 
       if (!response.ok) {
-        const errText = await response.text();
-        console.error("SF Image Error:", errText);
         throw new Error("SiliconFlow Image Gen failed");
       }
       
       const data = await response.json();
-      // Qwen returns object with "images": [{ "url": "..." }]
       const imageUrl = data.images?.[0]?.url;
       if (!imageUrl) throw new Error("No image URL returned");
 
-      // SiliconFlow returns a URL, but our app expects base64 for offline DB storage.
-      // Fetch the image and convert it.
       const imageRes = await fetch(imageUrl);
       const blob = await imageRes.blob();
       
@@ -297,10 +302,7 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
       console.error("SF Image Gen Error:", e);
       return `https://placehold.co/1280x720/pink/white?text=${encodeURIComponent("SiliconFlow Error")}`;
     }
-  } 
-  
-  // === GEMINI (Imagen) ===
-  else {
+  } else {
     if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
     const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
     try {

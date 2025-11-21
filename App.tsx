@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
 import { saveCGToGallery, saveGame } from './services/db';
-import Sidebar from './components/Sidebar';
 import GameScreen from './components/GameScreen';
+import SystemMenu from './components/SystemMenu';
+import AudioController from './components/AudioController';
 import Gallery from './components/Gallery';
 import SaveLoadModal from './components/SaveLoadModal';
-import { Menu, X, Loader2, Sparkles, Palette } from 'lucide-react';
+import ThemeSelectionModal from './components/ThemeSelectionModal';
+import { Loader2, Sparkles, Play, Settings, Image as ImageIcon } from 'lucide-react';
 
 const App: React.FC = () => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.START_SCREEN);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [bgImage, setBgImage] = useState<string>("https://picsum.photos/1920/1080?blur=2");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showSaveLoad, setShowSaveLoad] = useState<'save' | 'load' | null>(null);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingBonusId, setProcessingBonusId] = useState<string | null>(null);
 
@@ -36,6 +39,7 @@ const App: React.FC = () => {
   const startGame = async () => {
     setStatus(GameStatus.LOADING_SCENE);
     setError(null);
+    setShowThemeModal(false); // Ensure modal is closed
     
     const themeToUse = isCustomTheme && customTheme ? customTheme : selectedTheme;
 
@@ -84,7 +88,6 @@ const App: React.FC = () => {
 
   // Update Game State & Generate Image
   const updateGameState = async (scene: SceneResponse, theme: string, isReset: boolean = false) => {
-    // Optimistically update text
     setGameState(prevState => ({
       narrative: scene.narrative,
       choices: scene.choices,
@@ -97,50 +100,39 @@ const App: React.FC = () => {
       history: prevState ? [...prevState.history, scene.narrative] : [scene.narrative],
       unlockCg: scene.unlockCg,
       currentBgImage: isReset ? undefined : prevState?.currentBgImage,
-      theme: theme
+      theme: theme,
+      bgm: scene.bgm, 
+      soundEffect: scene.soundEffect 
     }));
     
     setStatus(GameStatus.PLAYING);
 
-    // Generate Image asynchronously
     try {
       const imageUrl = await generateSceneImage(scene.imagePrompt);
       setBgImage(imageUrl);
       
-      // Update state with the new image for saving purposes and Trigger Auto-Save
       setGameState(prev => {
         const updatedState = prev ? { ...prev, currentBgImage: imageUrl } : null;
-        
-        // Background Auto-Save
         if (updatedState) {
           saveGame('autosave', updatedState).catch(e => console.warn("Auto-save failed:", e));
         }
-        
         return updatedState;
       });
 
-      // Auto-save EVERY generated background to gallery as 'scene'
       await saveCGToGallery({
         id: `bg_${Date.now()}`,
         title: scene.location,
         description: `Turn ${isReset ? 1 : (gameState?.turnCount || 0) + 1}: ${scene.currentQuest}`
       }, imageUrl, 'scene');
 
-      // If special CG, save as 'event'
       if (scene.unlockCg) {
         saveCGToGallery(scene.unlockCg, imageUrl, 'event').catch(console.error);
       }
     } catch (e) {
       console.error("Image gen failed", e);
-      // Fallback Auto-save even if image fails
-      setGameState(prev => {
-        if (prev) saveGame('autosave', prev).catch(e => console.warn("Fallback auto-save failed:", e));
-        return prev;
-      });
     }
   };
 
-  // Load Game Handler
   const handleLoadGame = (loadedState: GameState) => {
     setGameState(loadedState);
     if (loadedState.currentBgImage) {
@@ -148,104 +140,85 @@ const App: React.FC = () => {
     }
     setStatus(GameStatus.PLAYING);
     setShowSaveLoad(null);
+    setIsMenuOpen(false); 
   };
 
   // Start Screen
   if (status === GameStatus.START_SCREEN) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40"></div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden font-sans">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 blur-sm transform scale-105"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80"></div>
         
-        <div className="relative z-10 max-w-4xl w-full p-8 flex flex-col items-center">
-          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-600 mb-2 font-display filter drop-shadow-lg text-center">
-            KIZUNA ENGINE
-          </h1>
-          <p className="text-xl text-pink-100 mb-10 font-light tracking-wide text-center">
-            Infinite Visual Novel Generator
-          </p>
+        <div className="relative z-10 max-w-4xl w-full p-8 flex flex-col items-center justify-center h-full">
+          
+          <div className="text-center mb-12 animate-in fade-in slide-in-from-top-10 duration-1000">
+            <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-purple-600 mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
+              KIZUNA
+            </h1>
+            <p className="text-2xl md:text-3xl text-pink-100 font-light tracking-[0.2em] uppercase opacity-90">
+              Infinite Visual Novel
+            </p>
+          </div>
           
           {error && (
-            <div className="bg-red-500/20 border border-red-500 text-red-200 p-4 rounded-lg mb-6 w-full max-w-md text-center">
+            <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-8 w-full max-w-md text-center backdrop-blur-md animate-in fade-in">
               {error}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl">
-            {/* Left Column: Actions */}
-            <div className="space-y-4 flex flex-col items-center md:items-end justify-center">
-                <button 
-                onClick={startGame}
-                className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg shadow-pink-600/30 transform hover:scale-105 transition-all duration-300 ring-4 ring-pink-900/50 w-full max-w-xs"
-                >
-                Start New Game
-                </button>
-                <button
+          <div className="flex flex-col items-center w-full max-w-md space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            
+            <button 
+              onClick={() => setShowThemeModal(true)}
+              className="w-full group relative bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-xl shadow-pink-900/40 transform hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+              <div className="flex items-center justify-center space-x-3">
+                <Play className="w-6 h-6 fill-current" />
+                <span>Start New Game</span>
+              </div>
+            </button>
+
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <button
                 onClick={() => setShowSaveLoad('load')}
-                className="bg-gray-800 hover:bg-gray-700 text-pink-100 font-bold py-3 px-8 rounded-full border border-pink-500/30 transition-all w-full max-w-xs"
-                >
-                Load Game
-                </button>
-                <button
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2 group"
+              >
+                <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                <span>Load</span>
+              </button>
+              <button
                 onClick={() => setShowGallery(true)}
-                className="text-pink-300 hover:text-white underline decoration-pink-500/50 underline-offset-4"
-                >
-                Open Gallery
-                </button>
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2"
+              >
+                <ImageIcon className="w-5 h-5" />
+                <span>Gallery</span>
+              </button>
             </div>
 
-            {/* Right Column: Theme Selection */}
-            <div className="bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-pink-500/20">
-                <div className="flex items-center text-pink-300 mb-4">
-                    <Palette className="w-5 h-5 mr-2" />
-                    <h3 className="font-bold uppercase tracking-wider text-sm">Story Theme</h3>
-                </div>
-                
-                <div className="space-y-2">
-                    {predefinedThemes.map((theme) => (
-                        <button
-                            key={theme}
-                            onClick={() => { setSelectedTheme(theme); setIsCustomTheme(false); }}
-                            className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${
-                                !isCustomTheme && selectedTheme === theme 
-                                ? 'bg-pink-600 text-white font-bold' 
-                                : 'hover:bg-white/10 text-gray-300'
-                            }`}
-                        >
-                            {theme}
-                        </button>
-                    ))}
-                    
-                    {/* Custom Theme Toggle */}
-                    <button
-                        onClick={() => setIsCustomTheme(true)}
-                        className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center ${
-                            isCustomTheme
-                            ? 'bg-pink-600 text-white font-bold' 
-                            : 'hover:bg-white/10 text-gray-300'
-                        }`}
-                    >
-                        <Sparkles className="w-3 h-3 mr-2" />
-                        Custom Theme...
-                    </button>
-
-                    {isCustomTheme && (
-                        <input 
-                            type="text"
-                            value={customTheme}
-                            onChange={(e) => setCustomTheme(e.target.value)}
-                            placeholder="e.g. Zombie Apocalypse in Space"
-                            className="w-full mt-2 bg-black/50 border border-pink-500/50 rounded p-2 text-white text-sm focus:outline-none focus:border-pink-400"
-                        />
-                    )}
-                </div>
-            </div>
           </div>
 
-          <div className="mt-8 text-gray-500 text-xs">
-             Provider: {process.env.AI_PROVIDER === 'siliconflow' ? 'SiliconFlow (DeepSeek/Qwen)' : 'Google Gemini'}
+          <div className="mt-12 text-gray-500 text-xs tracking-widest uppercase opacity-60">
+             Powered by {process.env.AI_PROVIDER === 'siliconflow' ? 'SiliconFlow AI' : 'Google Gemini'}
           </div>
         </div>
         
+        {showThemeModal && (
+          <ThemeSelectionModal
+            isOpen={showThemeModal}
+            onClose={() => setShowThemeModal(false)}
+            onStart={startGame}
+            selectedTheme={selectedTheme}
+            onSelectTheme={setSelectedTheme}
+            customTheme={customTheme}
+            setCustomTheme={setCustomTheme}
+            isCustomTheme={isCustomTheme}
+            setIsCustomTheme={setIsCustomTheme}
+            predefinedThemes={predefinedThemes}
+          />
+        )}
+
         {showGallery && <Gallery onClose={() => setShowGallery(false)} />}
         {showSaveLoad && (
           <SaveLoadModal 
@@ -259,57 +232,51 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-gray-900">
-      {/* Mobile Sidebar Toggle */}
-      <button 
-        className="absolute top-4 right-4 z-40 md:hidden bg-pink-600 text-white p-2 rounded-full shadow-lg"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? <X /> : <Menu />}
-      </button>
+    <div className="h-screen w-screen overflow-hidden bg-black relative font-sans">
+      
+      <AudioController 
+        bgm={gameState?.bgm} 
+        sfx={gameState?.soundEffect} 
+        volume={0.5} 
+      />
 
-      {/* Main Game Area */}
-      <div className="flex-1 h-full relative">
+      <div className="absolute inset-0 z-10">
         {gameState && (
           <GameScreen 
             gameState={gameState} 
             bgImage={bgImage} 
             onChoiceSelected={handleChoice}
+            onToggleMenu={() => setIsMenuOpen(true)}
             isProcessing={status === GameStatus.LOADING_SCENE}
           />
         )}
-
-        {/* Bonus Generation Overlay */}
-        {processingBonusId && (
-          <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-            <div className="bg-white/90 p-6 rounded-2xl shadow-2xl flex flex-col items-center animate-pulse">
-              <Loader2 className="w-10 h-10 text-amber-500 animate-spin mb-3" />
-              <div className="text-amber-600 font-bold text-xl font-display">Materializing Secret Memory...</div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 right-0 z-40 transform transition-transform duration-300 ease-in-out md:relative md:transform-none
-        ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-      `}>
-        {gameState && (
-          <Sidebar 
-            state={gameState} 
-            onOpenGallery={() => setShowGallery(true)}
+      {gameState && (
+          <SystemMenu
+            state={gameState}
+            isOpen={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            onOpenGallery={() => { setIsMenuOpen(false); setShowGallery(true); }}
             onUnlockBonus={handleUnlockBonus}
-            onOpenSave={() => setShowSaveLoad('save')}
-            onOpenLoad={() => setShowSaveLoad('load')}
+            onOpenSave={() => { setIsMenuOpen(false); setShowSaveLoad('save'); }}
+            onOpenLoad={() => { setIsMenuOpen(false); setShowSaveLoad('load'); }}
             processingBonusId={processingBonusId}
           />
-        )}
-      </div>
+      )}
 
-      {/* Modals */}
-      {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setIsSidebarOpen(false)} />}
+      {processingBonusId && (
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white/90 p-8 rounded-2xl shadow-2xl flex flex-col items-center animate-pulse max-w-sm text-center">
+            <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
+            <div className="text-amber-600 font-bold text-xl font-display tracking-wide">Unlocking Secret Memory</div>
+            <p className="text-gray-500 text-xs mt-2">Generating special artwork...</p>
+          </div>
+        </div>
+      )}
+
       {showGallery && <Gallery onClose={() => setShowGallery(false)} />}
+      
       {showSaveLoad && gameState && (
         <SaveLoadModal 
           mode={showSaveLoad} 
