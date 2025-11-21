@@ -120,10 +120,10 @@ const CustomSelect = ({
 
   return (
     <div className="relative" ref={wrapperRef}>
-      <label className="block text-sm font-bold text-gray-700 mb-1">{label}</label>
+      <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{label}</label>
       <button
         onClick={onToggle}
-        className={`w-full p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+        className={`w-full p-2 md:p-3 rounded-xl border text-left flex items-center justify-between transition-all text-sm ${
           isOpen 
             ? 'border-pink-500 bg-white ring-2 ring-pink-100' 
             : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300'
@@ -136,7 +136,7 @@ const CustomSelect = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl max-h-40 md:max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
           {searchable && (
             <div className="p-2 border-b border-gray-100 bg-gray-50 sticky top-0">
               <div className="relative">
@@ -147,7 +147,7 @@ const CustomSelect = ({
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search..."
-                  className="w-full pl-8 pr-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-pink-400"
+                  className="w-full pl-8 pr-3 py-1 text-xs bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-pink-400"
                   onClick={(e) => e.stopPropagation()}
                 />
               </div>
@@ -158,7 +158,7 @@ const CustomSelect = ({
             {searchable && searchTerm && (
                 <button
                     onClick={() => onChange(searchTerm)}
-                    className="w-full px-3 py-2 text-left text-sm rounded-lg hover:bg-gray-50 text-pink-600 italic flex items-center"
+                    className="w-full px-2 py-2 text-left text-xs rounded-lg hover:bg-gray-50 text-pink-600 italic flex items-center"
                 >
                     <span className="truncate">Use custom: "{searchTerm}"</span>
                 </button>
@@ -168,7 +168,7 @@ const CustomSelect = ({
                 <button
                   key={opt}
                   onClick={() => onChange(opt)}
-                  className={`w-full px-3 py-2 text-left text-sm rounded-lg transition-colors flex items-center justify-between group ${
+                  className={`w-full px-2 py-1.5 text-left text-xs md:text-sm rounded-lg transition-colors flex items-center justify-between group ${
                     value === opt 
                       ? 'bg-pink-50 text-pink-700 font-medium' 
                       : 'text-gray-700 hover:bg-gray-50'
@@ -278,74 +278,74 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
       setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const inputClasses = "w-full p-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all";
+  const inputClasses = "w-full p-2 md:p-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all text-sm";
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95">
+      <div className="bg-white w-full max-w-3xl rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] md:max-h-[90vh] animate-in zoom-in-95">
         
         {/* Header */}
-        <div className="p-6 bg-gray-900 flex items-center justify-between text-white shrink-0">
-          <div className="flex items-center gap-3">
-            <Settings className="w-6 h-6 text-pink-400" />
-            <h2 className="text-xl font-bold">{t.config.title}</h2>
+        <div className="p-3 md:p-6 bg-gray-900 flex items-center justify-between text-white shrink-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <Settings className="w-5 h-5 md:w-6 md:h-6 text-pink-400" />
+            <h2 className="text-base md:text-xl font-bold">{t.config.title}</h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
              {/* Tab Switcher */}
-             <div className="flex bg-gray-800 rounded-lg p-1">
+             <div className="flex bg-gray-800 rounded-lg p-0.5 md:p-1">
                  <button 
                     onClick={() => setActiveTab('general')}
-                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${activeTab === 'general' ? 'bg-gray-700 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                    className={`px-3 py-1 md:px-4 md:py-1.5 rounded-md text-xs md:text-sm font-bold transition-all ${activeTab === 'general' ? 'bg-gray-700 text-white shadow' : 'text-gray-400 hover:text-gray-200'}`}
                  >
                      General
                  </button>
                  <button 
                     onClick={() => setActiveTab('dev')}
-                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'dev' ? 'bg-pink-900/50 text-pink-200 shadow' : 'text-gray-400 hover:text-gray-200'}`}
+                    className={`px-3 py-1 md:px-4 md:py-1.5 rounded-md text-xs md:text-sm font-bold transition-all flex items-center gap-1 md:gap-2 ${activeTab === 'dev' ? 'bg-pink-900/50 text-pink-200 shadow' : 'text-gray-400 hover:text-gray-200'}`}
                  >
                      <Code className="w-3 h-3" />
                      Dev
                  </button>
              </div>
-             <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors">
+             <button onClick={onClose} className="p-1.5 md:p-2 hover:bg-white/20 rounded-full transition-colors">
                 <X className="w-5 h-5" />
              </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-white space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-white space-y-4 md:space-y-6 custom-scrollbar">
             
             {activeTab === 'general' && (
                 <>
                     {/* Provider Selection */}
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2">{t.config.provider}</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2">{t.config.provider}</label>
+                        <div className="grid grid-cols-3 gap-2 md:gap-3">
                             {(['gemini', 'siliconflow', 'custom'] as AiProvider[]).map(provider => (
                                 <button
                                     key={provider}
                                     onClick={() => setActiveProvider(provider)}
-                                    className={`py-3 px-2 rounded-xl text-sm font-bold border-2 transition-all capitalize flex flex-col items-center gap-1 ${
+                                    className={`py-2 md:py-3 px-2 rounded-xl text-xs md:text-sm font-bold border-2 transition-all capitalize flex flex-col items-center gap-1 ${
                                         activeProvider === provider 
                                         ? 'border-pink-500 bg-pink-50 text-pink-700' 
                                         : 'border-gray-100 bg-white text-gray-400 hover:border-gray-200 hover:text-gray-600'
                                     }`}
                                 >
-                                <Cpu className={`w-5 h-5 ${activeProvider === provider ? 'text-pink-500' : 'text-current'}`} />
+                                <Cpu className={`w-4 h-4 md:w-5 md:h-5 ${activeProvider === provider ? 'text-pink-500' : 'text-current'}`} />
                                 {provider}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    <div className="border-t border-gray-100 my-2"></div>
+                    <div className="border-t border-gray-100 my-1 md:my-2"></div>
 
                     {/* Gemini Config */}
                     {activeProvider === 'gemini' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-bottom-2">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.gemini.key}</label>
+                                <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.gemini.key}</label>
                                 <input 
                                     type="password" 
                                     value={config.geminiKey}
@@ -353,7 +353,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     className={inputClasses}
                                     placeholder="AI..."
                                 />
-                                <p className="text-xs text-gray-400 mt-2 flex items-center gap-1">
+                                <p className="text-[10px] md:text-xs text-gray-400 mt-1 md:mt-2 flex items-center gap-1">
                                     <span className="inline-block w-1 h-1 rounded-full bg-pink-500"></span>
                                     {t.config.gemini.desc}
                                 </p>
@@ -363,9 +363,9 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
 
                     {/* SiliconFlow Config */}
                     {activeProvider === 'siliconflow' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                        <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-bottom-2">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.siliconflow.key}</label>
+                                <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.siliconflow.key}</label>
                                 <input 
                                     type="password" 
                                     value={config.siliconFlowKey}
@@ -394,7 +394,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                 onToggle={() => toggleDropdown('sf_image')}
                             />
 
-                            <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                            <p className="text-[10px] md:text-xs text-gray-400 mt-1 flex items-center gap-1">
                                 <span className="inline-block w-1 h-1 rounded-full bg-pink-500"></span>
                                 {t.config.siliconflow.desc}
                             </p>
@@ -403,14 +403,14 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
 
                     {/* Custom Config */}
                     {activeProvider === 'custom' && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                            <div className="bg-blue-50 text-blue-600 px-4 py-3 rounded-xl text-sm flex items-start gap-2 border border-blue-100">
+                        <div className="space-y-3 md:space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                            <div className="bg-blue-50 text-blue-600 px-3 py-2 md:px-4 md:py-3 rounded-xl text-xs md:text-sm flex items-start gap-2 border border-blue-100">
                                 {t.config.custom.desc}
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4">
+                            <div className="grid grid-cols-1 gap-3 md:gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.custom.textApiUrl}</label>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.custom.textApiUrl}</label>
                                     <input 
                                         type="text" 
                                         value={config.customApiUrl}
@@ -420,7 +420,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.custom.textModel}</label>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.custom.textModel}</label>
                                     <input 
                                         type="text" 
                                         value={config.customModelName}
@@ -430,7 +430,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.custom.textApiKey}</label>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.custom.textApiKey}</label>
                                     <input 
                                         type="password" 
                                         value={config.customApiKey}
@@ -440,10 +440,10 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     />
                                 </div>
                                 
-                                <div className="border-t border-gray-100 my-2"></div>
+                                <div className="border-t border-gray-100 my-1 md:my-2"></div>
                                 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.custom.imageApiUrl}</label>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.custom.imageApiUrl}</label>
                                     <input 
                                         type="text" 
                                         value={config.customImageApiUrl}
@@ -453,7 +453,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">{t.config.custom.imageModel}</label>
+                                    <label className="block text-xs md:text-sm font-bold text-gray-700 mb-1">{t.config.custom.imageModel}</label>
                                     <input 
                                         type="text" 
                                         value={config.customImageModelName}
@@ -472,12 +472,12 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                 <div className="animate-in fade-in">
                     {/* Dev Mode Toggle */}
                     {!isDevMode ? (
-                        <div className="flex flex-col items-center justify-center py-10 text-center space-y-4">
+                        <div className="flex flex-col items-center justify-center py-6 md:py-10 text-center space-y-4">
                              <div className="bg-gray-100 p-4 rounded-full">
                                 <Code className="w-8 h-8 text-gray-500" />
                              </div>
-                             <h3 className="text-lg font-bold text-gray-800">{t.config.dev.title}</h3>
-                             <p className="text-gray-500 max-w-xs text-sm">{t.config.dev.warning}</p>
+                             <h3 className="text-base md:text-lg font-bold text-gray-800">{t.config.dev.title}</h3>
+                             <p className="text-gray-500 max-w-xs text-xs md:text-sm">{t.config.dev.warning}</p>
                              <button 
                                 onClick={() => setIsDevMode(true)}
                                 className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-black transition-colors font-bold text-sm"
@@ -486,20 +486,20 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                              </button>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                             <div className="bg-amber-50 text-amber-700 px-4 py-2 rounded-lg text-xs border border-amber-100 flex items-center gap-2">
+                        <div className="space-y-3 md:space-y-4">
+                             <div className="bg-amber-50 text-amber-700 px-3 py-2 rounded-lg text-[10px] md:text-xs border border-amber-100 flex items-center gap-2">
                                 <span className="font-bold">⚠</span> {t.config.dev.warning}
                              </div>
 
                              {/* Prompt Type Selector */}
                              <div>
-                                 <label className="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">{t.config.dev.promptType}</label>
-                                 <div className="flex gap-2 overflow-x-auto pb-2">
+                                 <label className="block text-[10px] md:text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">{t.config.dev.promptType}</label>
+                                 <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                                      {(['initial', 'next', 'secret', 'image'] as PromptType[]).map(type => (
                                          <button
                                             key={type}
                                             onClick={() => setSelectedPromptType(type)}
-                                            className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${
+                                            className={`px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold whitespace-nowrap transition-all ${
                                                 selectedPromptType === type
                                                 ? 'bg-pink-100 text-pink-700 border border-pink-200'
                                                 : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -513,7 +513,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
 
                              {/* Editor */}
                              <div className="relative">
-                                 <label className="flex justify-between items-center text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">
+                                 <label className="flex justify-between items-center text-[10px] md:text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">
                                      <span>{t.config.dev.editor}</span>
                                      <div className="flex gap-2">
                                          <button 
@@ -538,7 +538,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                     <textarea
                                         value={promptContent}
                                         onChange={(e) => setPromptContent(e.target.value)}
-                                        className="w-full h-64 p-4 rounded-xl border border-gray-200 bg-gray-900 text-gray-100 font-mono text-xs leading-relaxed focus:ring-2 focus:ring-pink-400 outline-none resize-y"
+                                        className="w-full h-32 md:h-64 p-3 rounded-xl border border-gray-200 bg-gray-900 text-gray-100 font-mono text-[10px] md:text-xs leading-relaxed focus:ring-2 focus:ring-pink-400 outline-none resize-y"
                                         spellCheck={false}
                                     />
                                     
@@ -574,7 +574,7 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
                                  <div className="flex justify-end mt-2">
                                      <button
                                         onClick={handleSavePrompt}
-                                        className="bg-pink-600 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-pink-700 transition-colors shadow-md"
+                                        className="bg-pink-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs md:text-sm flex items-center gap-2 hover:bg-pink-700 transition-colors shadow-md"
                                      >
                                          <Save className="w-4 h-4" />
                                          {t.config.dev.save}
@@ -590,16 +590,16 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
 
         {/* Footer - Only show general Save button if in General tab */}
         {activeTab === 'general' && (
-            <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+            <div className="p-3 md:p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-2 md:gap-3 shrink-0">
                 <button 
                     onClick={onClose} 
-                    className="px-5 py-2.5 text-gray-500 font-bold hover:bg-gray-200 hover:text-gray-700 rounded-xl transition-colors text-sm"
+                    className="px-4 py-2 text-gray-500 font-bold hover:bg-gray-200 hover:text-gray-700 rounded-xl transition-colors text-xs md:text-sm"
                 >
                     {t.config.cancel}
                 </button>
                 <button 
                     onClick={handleSave}
-                    className="px-6 py-2.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-200 hover:shadow-pink-300 hover:-translate-y-0.5 transition-all flex items-center gap-2 text-sm"
+                    className="px-5 py-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-200 hover:shadow-pink-300 hover:-translate-y-0.5 transition-all flex items-center gap-2 text-xs md:text-sm"
                 >
                     <Save className="w-4 h-4" />
                     {t.config.save}

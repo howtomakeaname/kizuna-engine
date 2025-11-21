@@ -40,25 +40,25 @@ const Gallery: React.FC<GalleryProps> = ({ onClose, t }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 md:p-8 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-6xl h-[90vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-6xl h-[95vh] md:h-[90vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl">
         
         {/* Header */}
-        <div className="p-6 bg-gradient-to-r from-pink-600 to-rose-600 flex items-center justify-between text-white shrink-0">
+        <div className="p-4 md:p-6 bg-gradient-to-r from-pink-600 to-rose-600 flex items-center justify-between text-white shrink-0">
           <div className="flex items-center space-x-3">
-            <ImageIcon className="w-6 h-6" />
-            <h2 className="text-2xl font-display font-bold">{t.gallery.title}</h2>
+            <ImageIcon className="w-5 h-5 md:w-6 md:h-6" />
+            <h2 className="text-lg md:text-2xl font-display font-bold">{t.gallery.title}</h2>
           </div>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-white/20 rounded-full transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 custom-scrollbar">
           {loading ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
               <Loader2 className="w-12 h-12 animate-spin mb-4 text-pink-500" />
@@ -71,23 +71,23 @@ const Gallery: React.FC<GalleryProps> = ({ onClose, t }) => {
               <p className="text-sm">{t.gallery.emptyDesc}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {images.map((cg) => (
                 <div 
                   key={cg.id} 
                   onClick={() => setSelectedImage(cg)}
-                  className="group relative aspect-video bg-gray-200 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1"
+                  className="group relative aspect-video bg-gray-200 rounded-lg md:rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer transform hover:-translate-y-1"
                 >
                   <img 
                     src={cg.imageData} 
                     alt={cg.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <h3 className="text-white font-bold text-lg">{cg.title}</h3>
-                    <p className="text-gray-200 text-xs line-clamp-2">{cg.description}</p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 md:p-4">
+                    <h3 className="text-white font-bold text-sm md:text-lg truncate">{cg.title}</h3>
+                    <p className="text-gray-200 text-[10px] md:text-xs line-clamp-2">{cg.description}</p>
                     <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center text-gray-400 text-xs">
+                      <div className="flex items-center text-gray-400 text-[10px] md:text-xs">
                         <Calendar className="w-3 h-3 mr-1" />
                         {new Date(cg.timestamp).toLocaleDateString()}
                       </div>
@@ -96,7 +96,7 @@ const Gallery: React.FC<GalleryProps> = ({ onClose, t }) => {
                         className="p-1.5 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
                         title={t.game.download}
                       >
-                        <Download className="w-4 h-4" />
+                        <Download className="w-3 h-3 md:w-4 md:h-4" />
                       </button>
                     </div>
                   </div>
@@ -116,12 +116,12 @@ const Gallery: React.FC<GalleryProps> = ({ onClose, t }) => {
           <img 
             src={selectedImage.imageData} 
             alt={selectedImage.title}
-            className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-lg"
+            className="max-w-full max-h-[80vh] object-contain shadow-2xl rounded-lg"
           />
-          <div className="mt-4 text-white text-center flex flex-col items-center gap-3">
+          <div className="mt-4 text-white text-center flex flex-col items-center gap-2 md:gap-3">
             <div>
-                <h3 className="text-2xl font-bold">{selectedImage.title}</h3>
-                <p className="text-gray-400 max-w-xl mx-auto mt-2">{selectedImage.description}</p>
+                <h3 className="text-xl md:text-2xl font-bold">{selectedImage.title}</h3>
+                <p className="text-gray-400 text-sm max-w-xl mx-auto line-clamp-2">{selectedImage.description}</p>
             </div>
             
             <div className="flex gap-4">

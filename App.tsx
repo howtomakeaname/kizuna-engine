@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
@@ -14,6 +13,7 @@ import ThemeSelectionModal from './components/ThemeSelectionModal';
 import NameInputModal from './components/NameInputModal';
 import LoadingScreen from './components/LoadingScreen';
 import ConfigModal from './components/ConfigModal';
+import MobilePortraitOverlay from './components/MobilePortraitOverlay';
 import { Loader2, Play, Settings, Image as ImageIcon, UserCog } from 'lucide-react';
 import { translations, Language } from './i18n/translations';
 
@@ -296,6 +296,7 @@ const App: React.FC = () => {
   if (status === GameStatus.START_SCREEN || isGameLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden font-sans">
+        <MobilePortraitOverlay />
         
         {isGameLoading && <LoadingScreen t={t} />}
 
@@ -310,7 +311,7 @@ const App: React.FC = () => {
         />
         
         {/* Language & Config (Top Right) */}
-        <div className="absolute top-6 right-6 z-50 flex gap-2">
+        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50 flex gap-2">
             <button
                 onClick={() => setShowConfigModal(true)}
                 className="bg-black/40 hover:bg-black/60 text-gray-400 hover:text-white rounded-full p-1.5 transition-all"
@@ -322,7 +323,7 @@ const App: React.FC = () => {
                 <button
                     key={lang}
                     onClick={() => setCurrentLanguage(lang)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase transition-all ${
+                    className={`px-2 py-1 md:px-3 rounded-full text-[10px] md:text-xs font-bold uppercase transition-all ${
                         currentLanguage === lang 
                         ? 'bg-pink-600 text-white shadow-lg' 
                         : 'bg-black/40 text-gray-400 hover:bg-black/60 hover:text-white'
@@ -334,62 +335,62 @@ const App: React.FC = () => {
         </div>
 
         {!isGameLoading && (
-            <div className="relative z-10 max-w-4xl w-full p-8 flex flex-col items-center justify-center h-full">
+            <div className="relative z-10 max-w-4xl w-full p-6 md:p-8 flex flex-col items-center justify-center h-full">
             
-            <div className="text-center mb-12 animate-in fade-in slide-in-from-top-10 duration-1000">
-                <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
+            <div className="text-center mb-6 md:mb-12 animate-in fade-in slide-in-from-top-10 duration-1000">
+                <h1 className="text-5xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 mb-1 md:mb-2 font-display filter drop-shadow-[0_0_15px_rgba(236,72,153,0.5)] tracking-tight">
                 {t.start.title}
                 </h1>
-                <p className="text-2xl md:text-3xl text-pink-100 font-light tracking-[0.2em] uppercase opacity-90">
+                <p className="text-lg md:text-3xl text-pink-100 font-light tracking-[0.2em] uppercase opacity-90">
                 {t.start.subtitle}
                 </p>
             </div>
             
             {error && (
-                <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-lg mb-8 w-full max-w-md text-center backdrop-blur-md animate-in fade-in flex flex-col gap-2">
+                <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 md:p-4 rounded-lg mb-4 md:mb-8 w-full max-w-md text-center backdrop-blur-md animate-in fade-in flex flex-col gap-1 md:gap-2 text-xs md:text-sm">
                     <span>{error}</span>
                     <button 
                         onClick={() => setShowConfigModal(true)}
-                        className="text-xs underline text-red-300 hover:text-white"
+                        className="underline text-red-300 hover:text-white"
                     >
                         Open Configuration
                     </button>
                 </div>
             )}
 
-            <div className="flex flex-col items-center w-full max-w-md space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            <div className="flex flex-col items-center w-full max-w-[280px] md:max-w-md space-y-3 md:space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
                 
                 <button 
                 onClick={() => setShowThemeModal(true)}
-                className="w-full group relative bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xl font-bold py-5 px-8 rounded-2xl shadow-xl shadow-pink-900/40 transform hover:scale-[1.02] transition-all duration-300 overflow-hidden"
+                className="w-full group relative bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-lg md:text-xl font-bold py-3 px-6 md:py-5 md:px-8 rounded-xl md:rounded-2xl shadow-xl shadow-pink-900/40 transform hover:scale-[1.02] transition-all duration-300 overflow-hidden"
                 >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                 <div className="flex items-center justify-center space-x-3">
-                    <Play className="w-6 h-6 fill-current" />
+                    <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
                     <span>{t.start.newGame}</span>
                 </div>
                 </button>
 
-                <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 w-full">
                 <button
                     onClick={() => setShowSaveLoad('load')}
-                    className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2 group"
+                    className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-3 px-4 md:py-4 md:px-6 rounded-xl md:rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2 group text-sm md:text-base"
                 >
-                    <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                    <Settings className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-90 transition-transform" />
                     <span>{t.start.load}</span>
                 </button>
                 <button
                     onClick={() => setShowGallery(true)}
-                    className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-4 px-6 rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2"
+                    className="bg-white/5 hover:bg-white/10 backdrop-blur-sm text-pink-100 font-semibold py-3 px-4 md:py-4 md:px-6 rounded-xl md:rounded-2xl border border-white/10 transition-all hover:border-pink-500/50 hover:text-white flex items-center justify-center space-x-2 text-sm md:text-base"
                 >
-                    <ImageIcon className="w-5 h-5" />
+                    <ImageIcon className="w-4 h-4 md:w-5 md:h-5" />
                     <span>{t.start.gallery}</span>
                 </button>
                 </div>
 
             </div>
 
-            <div className="mt-12 text-gray-500 text-xs tracking-widest uppercase opacity-60">
+            <div className="mt-6 md:mt-12 text-gray-500 text-[10px] md:text-xs tracking-widest uppercase opacity-60">
                 {t.start.poweredBy} {hasValidConfig() ? 'AI Engine' : '...'}
             </div>
             </div>
@@ -445,6 +446,7 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black relative font-sans">
+      <MobilePortraitOverlay />
       
       <AudioController 
         bgm={gameState?.bgm} 
@@ -491,9 +493,9 @@ const App: React.FC = () => {
 
       {processingBonusId && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white/90 p-8 rounded-2xl shadow-2xl flex flex-col items-center animate-pulse max-w-sm text-center">
-            <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
-            <div className="text-amber-600 font-bold text-xl font-display tracking-wide">{t.menu.actions.unlock}</div>
+          <div className="bg-white/90 p-6 md:p-8 rounded-2xl shadow-2xl flex flex-col items-center animate-pulse max-w-xs md:max-w-sm text-center">
+            <Loader2 className="w-10 h-10 md:w-12 md:h-12 text-amber-500 animate-spin mb-3 md:mb-4" />
+            <div className="text-amber-600 font-bold text-lg md:text-xl font-display tracking-wide">{t.menu.actions.unlock}</div>
             <p className="text-gray-500 text-xs mt-2">{t.menu.actions.unlocking}</p>
           </div>
         </div>
