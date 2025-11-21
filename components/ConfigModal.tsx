@@ -335,7 +335,6 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
             {activeProvider === 'custom' && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
                     <div className="bg-blue-50 text-blue-600 px-4 py-3 rounded-xl text-sm flex items-start gap-2 border border-blue-100">
-                        <span>ℹ️</span>
                         {t.config.custom.desc}
                     </div>
 

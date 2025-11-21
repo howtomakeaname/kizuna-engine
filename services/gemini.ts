@@ -327,7 +327,8 @@ export const generateSecretMemory = async (heroine: Heroine, theme: string, lang
 };
 
 export const generateSceneImage = async (prompt: string): Promise<string> => {
-  const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k, cinematic lighting, detailed background. ${prompt}`;
+  // Optimized prompt for Japanese anime style with high quality and bright colors
+  const enhancedPrompt = `Japanese anime art style, masterpiece, best quality, ultra detailed, 4k, vibrant, bright colors, soft lighting, beautiful composition, detailed background, visual novel CG. ${prompt}`;
   const config = getStoredConfig();
 
   // === CUSTOM IMAGE API ===
