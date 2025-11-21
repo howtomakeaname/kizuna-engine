@@ -11,8 +11,10 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
+        'process.env.AI_PROVIDER': JSON.stringify(env.AI_PROVIDER),
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'process.env.SILICONFLOW_API_KEY': JSON.stringify(env.SILICONFLOW_API_KEY),
       },
       resolve: {
         alias: {
