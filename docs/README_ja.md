@@ -2,9 +2,9 @@
 
 ![スタート画面](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
 
-![Game View 1](https://img.cdn1.vip/i/6920247671265_1763714166.webp)
+![Game View 1](https://img.cdn1.vip/i/692051d06f083_1763725776.webp)
 
-![Game View 2](https://img.cdn1.vip/i/69202476375bb_1763714166.webp)
+![Game View 2](https://img.cdn1.vip/i/692051d03f98b_1763725776.webp)
 
 生成AIによって駆動されるリアルタイム、無限のビジュアルノベルジェネレーターです。すべての選択が重要となるユニークなストーリーを、動的なアセットと多言語サポートで体験してください。
 

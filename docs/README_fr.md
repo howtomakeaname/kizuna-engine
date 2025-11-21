@@ -2,9 +2,9 @@
 
 ![Écran titre](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
 
-![Game View 1](https://img.cdn1.vip/i/6920247671265_1763714166.webp)
+![Game View 1](https://img.cdn1.vip/i/692051d06f083_1763725776.webp)
 
-![Game View 2](https://img.cdn1.vip/i/69202476375bb_1763714166.webp)
+![Game View 2](https://img.cdn1.vip/i/692051d03f98b_1763725776.webp)
 
 Un générateur de Visual Novel en temps réel et infini, propulsé par l'IA générative. Vivez une histoire unique où chaque choix compte, avec des ressources générées dynamiquement et un support multilingue.
 

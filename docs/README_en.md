@@ -3,9 +3,9 @@
 
 ![Start Screen](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
 
-![Game View 1](https://img.cdn1.vip/i/6920247671265_1763714166.webp)
+![Game View 1](https://img.cdn1.vip/i/692051d06f083_1763725776.webp)
 
-![Game View 2](https://img.cdn1.vip/i/69202476375bb_1763714166.webp)
+![Game View 2](https://img.cdn1.vip/i/692051d03f98b_1763725776.webp)
 
 A real-time, infinite visual novel generator powered by Generative AI. Experience a unique story where every choice matters, with dynamic assets and multilingual support.
 
