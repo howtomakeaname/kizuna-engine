@@ -73,11 +73,11 @@ const sceneSchema: Schema = {
     },
     bgm: {
       type: Type.STRING,
-      description: "The mood of the music. Options: 'SliceOfLife', 'Sentimental', 'Tension', 'Action', 'Mystery', 'Romantic', 'Comical', 'Magical'.",
+      description: "The mood of the music. Options: 'SliceOfLife', 'Sentimental', 'Tension', 'Action', 'Mystery', 'Romantic', 'Comical', 'Magical', 'Melancholy', 'Upbeat', 'Battle', 'Horror', 'LateNight'.",
     },
     soundEffect: {
       type: Type.STRING,
-      description: "Optional sound effect. Options: 'SchoolBell', 'DoorOpen', 'Footsteps', 'Heartbeat', 'Explosion', 'MagicChime', 'None'.",
+      description: "Optional sound effect. Options: 'SchoolBell', 'DoorOpen', 'Footsteps', 'Heartbeat', 'Explosion', 'MagicChime', 'Rain', 'Crowd', 'PhoneRing', 'Cheer', 'None'.",
       nullable: true
     }
   },
@@ -108,8 +108,8 @@ const getJsonSchemaInstruction = () => `
     "location": "string",
     "imagePrompt": "string (OR null if scene/bg has NOT changed)",
     "unlockCg": { "id": "string", "title": "string", "description": "string" } (optional, use null),
-    "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical)",
-    "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, None)"
+    "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight)",
+    "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer, None)"
   }
 `;
 
@@ -131,9 +131,10 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 2. **Dialogue-First**: Prioritize what characters say. Format: "Name: 'Dialogue'".
 3. **No Prose**: Do not write long descriptions. Show, don't tell.
 4. **Anime Tropes**: Lean into tropes appropriate for the theme.
-5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene.
-6. **Language**: You MUST output the narrative, choices, quest, location, and heroine details in the requested target language.
-7. **Player Name**: Refer to the main character as the provided Player Name if needed, but prefer first-person perspective or "You".
+5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene perfectly.
+6. **Visual Consistency**: When generating 'imagePrompt', you MUST explicitly include the physical traits (hair color, eye color, clothes) of any character present in the scene, based on their description in the 'heroines' list.
+7. **Language**: You MUST output the narrative, choices, quest, location, and heroine details in the requested target language.
+8. **Player Name**: Refer to the main character as the provided Player Name if needed, but prefer first-person perspective or "You".
 
 **Game Rules**:
 1. Track affection (0-100).
@@ -286,6 +287,14 @@ export const generateNextScene = async (
     ? "This is a MAJOR DECISION point. Provide 3 distinct, diverging choices that affect the plot or relationships." 
     : "This is a CONVERSATION step. Provide exactly 1 linear choice: [{ 'id': 'continue', 'text': 'Next' }] to advance the dialogue naturally.";
 
+  // INCREASED CONTEXT HISTORY from 3 to 20 items
+  const historySlice = currentState.history.slice(-20).join(" | ");
+
+  // Expanded heroine context for visual consistency
+  const heroinesContext = currentState.heroines.map(h => 
+    `${h.name} [${h.archetype}, Status: ${h.status}] (Visuals: ${h.description}) (Affection: ${h.affection})`
+  ).join(" | ");
+
   const template = await getActivePromptTemplate('next');
   const prompt = renderPrompt(template, {
     theme: currentState.theme,
@@ -293,8 +302,8 @@ export const generateNextScene = async (
     language: currentState.language,
     location: currentState.location,
     currentQuest: currentState.currentQuest,
-    heroinesList: currentState.heroines.map(h => `${h.name} (${h.affection})`).join(", "),
-    historySummary: currentState.history.slice(-3).join(" | "),
+    heroinesList: heroinesContext, // Updated to pass full details
+    historySummary: historySlice,
     choiceText,
     choiceInstruction
   });

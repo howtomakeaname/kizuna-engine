@@ -13,7 +13,7 @@ Language: "{{language}}" (Output all narrative/text in this language)
 2. Scene: Introductory scene fitting the theme.
 3. Intro text: 1 sentence greeting or action from a main heroine.
 4. 3 Choices for the player to start the story.
-5. Suggest BGM and Sound Effect.
+5. Suggest BGM (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight) and Sound Effect (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer).
 6. IMPORTANT: "imagePrompt" MUST be provided (cannot be null) for the first scene.`,
   
   next: `Theme: "{{theme}}"
@@ -32,8 +32,8 @@ Task:
 2. Update stats.
 3. **Choices Generation**:
    {{choiceInstruction}}
-4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. **If the background is the same, strictly return NULL for imagePrompt to save costs.**
-5. Suggest BGM (mood) and SFX.`,
+4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. Include visual descriptions of characters present. **If the background is the same, strictly return NULL for imagePrompt to save costs.**
+5. Suggest BGM (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight) and SFX (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer).`,
 
   secret: `Generate a 'Secret Memory' (Bonus CG) for {{heroineName}} (Archetype: {{heroineArchetype}}).
 Theme: "{{theme}}"

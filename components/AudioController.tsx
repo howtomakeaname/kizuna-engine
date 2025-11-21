@@ -8,16 +8,22 @@ interface AudioControllerProps {
   isMuted: boolean;
 }
 
-// Placeholder Assets
+// Expanded Assets using Placeholder links
 const BGM_TRACKS: Record<string, string> = {
-  'SliceOfLife': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-  'Sentimental': 'https://cdn.pixabay.com/download/audio/2021/11/24/audio_826947e594.mp3',
-  'Tension': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_8e5f84442b.mp3',
-  'Action': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_5480a4bf69.mp3',
-  'Mystery': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_352837594d.mp3',
-  'Romantic': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
-  'Comical': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d2948d7262.mp3',
+  'SliceOfLife': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3', // Relaxing/Happy
+  'Sentimental': 'https://cdn.pixabay.com/download/audio/2021/11/24/audio_826947e594.mp3', // Sad/Emotional
+  'Tension': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_8e5f84442b.mp3', // Suspense
+  'Action': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_5480a4bf69.mp3', // Battle
+  'Mystery': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_352837594d.mp3', // Ambient
+  'Romantic': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3', 
+  'Comical': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d2948d7262.mp3', // Upbeat
   'Magical': 'https://cdn.pixabay.com/download/audio/2022/04/27/audio_6902c21b21.mp3',
+  // New Mappings
+  'Melancholy': 'https://cdn.pixabay.com/download/audio/2021/11/24/audio_826947e594.mp3',
+  'Upbeat': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d2948d7262.mp3',
+  'Battle': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_5480a4bf69.mp3',
+  'Horror': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_8e5f84442b.mp3',
+  'LateNight': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_352837594d.mp3',
 };
 
 const SFX_TRACKS: Record<string, string> = {
@@ -27,6 +33,11 @@ const SFX_TRACKS: Record<string, string> = {
   'Heartbeat': 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c71d616281.mp3',
   'MagicChime': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_c3292c38b2.mp3',
   'Explosion': 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
+  // New Mappings
+  'Rain': 'https://cdn.pixabay.com/download/audio/2022/02/07/audio_352837594d.mp3', // Ambient
+  'Crowd': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+  'PhoneRing': 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_1be3e0d7b4.mp3',
+  'Cheer': 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d2948d7262.mp3',
 };
 
 const AudioController: React.FC<AudioControllerProps> = ({ bgm, sfx, volume, isMuted }) => {

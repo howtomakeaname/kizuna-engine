@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
 import { saveCGToGallery, saveGame } from './services/db';
@@ -42,6 +42,9 @@ const App: React.FC = () => {
   const [processingBonusId, setProcessingBonusId] = useState<string | null>(null);
   const [isImageLoading, setIsImageLoading] = useState(false);
   
+  // Preload Reference
+  const preloadPromiseRef = useRef<Promise<SceneResponse> | null>(null);
+
   // Language State
   const [currentLanguage, setCurrentLanguage] = useState<Language>('zh');
   const t = translations[currentLanguage];
@@ -109,6 +112,8 @@ const App: React.FC = () => {
     // Show Loading Screen instead of immediate Game Screen
     setIsGameLoading(true); 
     setError(null);
+    // Clear any existing preload
+    preloadPromiseRef.current = null;
     
     const themeToUse = isCustomTheme && customTheme ? customTheme : selectedTheme;
     
@@ -157,8 +162,27 @@ const App: React.FC = () => {
   const handleChoice = async (choiceId: string) => {
     if (!gameState) return;
     setStatus(GameStatus.LOADING_SCENE);
+    
     try {
-      const scene = await generateNextScene(gameState, choiceId);
+      let scene: SceneResponse;
+      
+      // Check for Preloaded Scene
+      if (preloadPromiseRef.current && gameState.choices.length === 1 && gameState.choices[0].id === choiceId) {
+          try {
+              scene = await preloadPromiseRef.current;
+              console.log("Used preloaded scene");
+          } catch (e) {
+              console.warn("Preload failed, retrying normally", e);
+              scene = await generateNextScene(gameState, choiceId);
+          }
+      } else {
+          // Normal Generation
+          scene = await generateNextScene(gameState, choiceId);
+      }
+
+      // Reset preload ref after use (or if we didn't use it)
+      preloadPromiseRef.current = null;
+
       await updateGameState(scene, gameState.theme, gameState.language, false, gameState.playerName);
     } catch (err: any) {
       console.error(err);
@@ -186,7 +210,7 @@ const App: React.FC = () => {
     }
   };
 
-  // Update Game State & Generate Image
+  // Update Game State & Generate Image & Preload
   const updateGameState = async (
       scene: SceneResponse, 
       theme: string, 
@@ -221,6 +245,19 @@ const App: React.FC = () => {
 
     setGameState(nextState);
     setStatus(GameStatus.PLAYING);
+
+    // --- Preloading Logic ---
+    // If the scene is linear (only 1 choice, usually "Next"), start fetching the next scene immediately.
+    if (scene.choices.length === 1) {
+        const nextChoiceId = scene.choices[0].id;
+        console.log("Preloading next scene...");
+        preloadPromiseRef.current = generateNextScene(nextState, nextChoiceId).catch(e => {
+            console.error("Preload error (silenced)", e);
+            throw e; // Re-throw so handleChoice can catch it if needed, though Promise logic handles it
+        });
+    } else {
+        preloadPromiseRef.current = null;
+    }
 
     // Image Generation Logic
     if (preloadedImage) {
@@ -266,6 +303,7 @@ const App: React.FC = () => {
   };
 
   const handleLoadGame = (loadedState: GameState) => {
+    preloadPromiseRef.current = null; // Clear preload when loading a different state
     setGameState(loadedState);
     setPlayerName(loadedState.playerName || "Protagonist"); // Fallback for old saves
     

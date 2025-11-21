@@ -220,15 +220,6 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </div>
       )}
 
-      {/* Loading Indicator */}
-      {isProcessing && (
-        <div className="absolute bottom-24 md:bottom-32 right-8 z-40 flex items-center space-x-2 bg-black/60 backdrop-blur rounded-full px-4 py-2">
-             <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-             <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-             <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-        </div>
-      )}
-
       {/* ADV Text Box Area - Reduced height/padding for mobile landscape */}
       {!hideUI && (
           <div className="absolute bottom-0 inset-x-0 z-20 p-2 pb-4 md:p-4 md:pb-6 flex justify-center animate-in slide-in-from-bottom-10 fade-in duration-700">
@@ -255,6 +246,15 @@ const GameScreen: React.FC<GameScreenProps> = ({
                         {speakerName ? '' : ''}
                         {typedNarrative}
                         {!isSkipMode && isTyping && <span className="inline-block w-1.5 h-3 md:w-2 md:h-5 ml-1 bg-pink-500 animate-pulse align-middle rounded-sm"></span>}
+                        
+                        {/* Internal Loading Indicator (Typing Bubbles) */}
+                        {isProcessing && (
+                            <span className="inline-flex items-baseline ml-2 gap-1">
+                                <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </span>
+                        )}
                     </p>
                     
                     {/* Click to Continue Indicator (Blinking Arrow) */}
