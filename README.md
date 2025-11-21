@@ -1,6 +1,11 @@
+
 # Kizuna Engine - Infinite Galgame
 
-A real-time, infinite visual novel generator powered by Generative AI.
+![Start Screen](docs/images/startScreen.png)
+
+A real-time, infinite visual novel generator powered by Generative AI. Experience a unique story where every choice matters, with dynamic assets and multilingual support.
+
+[中文文档](docs/README_zh.md) | [Документация на русском](docs/README_ru.md) | [日本語ドキュメント](docs/README_ja.md) | [Documentation en Français](docs/README_fr.md)
 
 ## Configuration
 
@@ -71,5 +76,6 @@ CUSTOM_MODEL_NAME=meta-llama/Meta-Llama-3-70B-Instruct
 ## Features
 - **Themes**: Choose from High School, Magic, Maid Cafe, Isekai, or create your own.
 - **Infinite Story**: The plot is generated on the fly.
+- **Multilingual**: Full support for English, Chinese, Japanese, Russian, and French.
 - **Gallery**: Save your favorite scenes and unlocked memories.
 - **Save/Load**: Auto-save support and manual slots.

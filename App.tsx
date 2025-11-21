@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { GameState, GameStatus, SceneResponse, Heroine } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
@@ -178,7 +179,7 @@ const App: React.FC = () => {
         
         {/* Language Selector (Top Right) */}
         <div className="absolute top-6 right-6 z-50 flex gap-2">
-            {(['en', 'zh', 'ja', 'ru'] as Language[]).map((lang) => (
+            {(['en', 'zh', 'ja', 'ru', 'fr'] as Language[]).map((lang) => (
                 <button
                     key={lang}
                     onClick={() => setCurrentLanguage(lang)}

@@ -1,4 +1,5 @@
 
+
 export const translations = {
   en: {
     start: {
@@ -302,6 +303,82 @@ export const translations = {
       deleteConfirm: "Вы уверены, что хотите удалить это сохранение?",
       saveHere: "Сохранить здесь",
       loadGame: "Загрузить"
+    }
+  },
+  fr: {
+    start: {
+      title: "KIZUNA",
+      subtitle: "Visual Novel Infini",
+      newGame: "Nouvelle Partie",
+      load: "Charger",
+      gallery: "Galerie",
+      poweredBy: "Propulsé par",
+    },
+    theme: {
+      title: "Choisir un Thème",
+      desc: "Choisissez le cadre de votre aventure :",
+      custom: "Scénario Personnalisé",
+      customPlaceholder: "Ex: Détective Cyberpunk, Survie Zombie...",
+      cancel: "Annuler",
+      start: "Commencer",
+      names: {
+        "Japanese High School": "Lycée Japonais",
+        "School & Magic Academy": "Académie de Magie",
+        "Cat Girl & Maid Cafe": "Neko Maid Café",
+        "Isekai Fantasy Adventure": "Aventure Isekai Fantasy",
+        "Cyberpunk Dystopia": "Dystopie Cyberpunk",
+        "Post-Apocalyptic Survival": "Survie Post-Apocalyptique",
+        "Sci-Fi Space Opera": "Space Opera Sci-Fi",
+        "Historical Dynasty": "Dynastie Historique",
+        "Mythological Fantasy": "Fantasy Mythologique",
+        "Supernatural Horror": "Horreur Surnaturelle",
+      }
+    },
+    game: {
+      turn: "Tour",
+      skip: "Passer",
+      skipping: "Avance rapide",
+      log: "Journal",
+      auto: "Auto",
+      hideUi: "Masquer UI",
+      specialEvent: "ÉVÉNEMENT SPÉCIAL",
+      menu: "Menu"
+    },
+    menu: {
+      title: "MENU SYSTÈME",
+      tabs: {
+        heroines: "Héroïnes",
+        items: "Objets",
+        system: "Système"
+      },
+      actions: {
+        save: "Sauvegarder",
+        saveDesc: "Enregistrer votre progression.",
+        load: "Charger",
+        loadDesc: "Retourner à un moment précédent.",
+        gallery: "Galerie Souvenirs",
+        galleryDesc: "Voir les CG et événements débloqués.",
+        unlock: "Débloquer Souvenir",
+        unlocking: "Lecture du souvenir...",
+      },
+      emptyBag: "Votre sac est vide."
+    },
+    gallery: {
+      title: "Galerie CG",
+      loading: "Chargement...",
+      empty: "Aucun souvenir débloqué.",
+      emptyDesc: "Jouez pour débloquer des événements spéciaux.",
+      close: "Fermer"
+    },
+    saveload: {
+      saveTitle: "Sauvegarder",
+      loadTitle: "Charger",
+      autoSave: "Sauvegarde Auto",
+      empty: "Emplacement Vide",
+      noData: "Aucune Donnée",
+      deleteConfirm: "Voulez-vous vraiment supprimer cette sauvegarde ?",
+      saveHere: "Sauvegarder ici",
+      loadGame: "Charger"
     }
   }
 };
