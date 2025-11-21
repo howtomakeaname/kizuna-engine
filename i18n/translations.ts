@@ -37,6 +37,24 @@ export const translations = {
             imageModel: "Image Model Name (Optional)",
             desc: "Compatible with OpenAI format (Ollama, vLLM, etc.)"
         },
+        dev: {
+            title: "Developer Mode",
+            enable: "Enable Developer Mode",
+            warning: "Advanced: Modifying prompts may break game logic. Use with caution.",
+            promptType: "Prompt Type",
+            editor: "Prompt Editor",
+            save: "Save Version",
+            history: "History / Restore",
+            reset: "Load Default",
+            types: {
+                initial: "Initial Scene",
+                next: "Next Scene",
+                secret: "Secret Memory",
+                image: "Image Generation"
+            },
+            savedToast: "Prompt version saved!",
+            restoredToast: "Version restored!"
+        },
         save: "Save Configuration",
         cancel: "Cancel",
         saved: "Settings Saved!"
@@ -152,6 +170,24 @@ export const translations = {
             imageApiUrl: "图像 API URL (可选)",
             imageModel: "图像模型名称 (可选)",
             desc: "兼容 OpenAI 格式 (Ollama, vLLM 等)"
+        },
+        dev: {
+            title: "开发者模式",
+            enable: "启用开发者模式",
+            warning: "高级功能：修改提示词可能会破坏游戏逻辑，请谨慎使用。",
+            promptType: "提示词类型",
+            editor: "提示词编辑器",
+            save: "保存版本",
+            history: "历史版本 / 回滚",
+            reset: "加载默认值",
+            types: {
+                initial: "初始场景 (Initial Scene)",
+                next: "后续场景 (Next Scene)",
+                secret: "秘密回忆 (Secret Memory)",
+                image: "图像生成 (Image Gen)"
+            },
+            savedToast: "版本已保存！",
+            restoredToast: "版本已恢复！"
         },
         save: "保存配置",
         cancel: "取消",
@@ -269,6 +305,24 @@ export const translations = {
             imageModel: "画像モデル名 (任意)",
             desc: "OpenAI形式互換 (Ollama, vLLMなど)"
         },
+        dev: {
+            title: "開発者モード",
+            enable: "開発者モードを有効にする",
+            warning: "高度な設定：プロンプトを変更するとゲームロジックが破損する可能性があります。",
+            promptType: "プロンプトタイプ",
+            editor: "プロンプトエディタ",
+            save: "バージョンを保存",
+            history: "履歴 / 復元",
+            reset: "デフォルトに戻す",
+            types: {
+                initial: "初期シーン (Initial Scene)",
+                next: "次シーン (Next Scene)",
+                secret: "秘密の記憶 (Secret Memory)",
+                image: "画像生成 (Image Gen)"
+            },
+            savedToast: "保存しました！",
+            restoredToast: "復元しました！"
+        },
         save: "設定を保存",
         cancel: "キャンセル",
         saved: "設定を保存しました！"
@@ -385,6 +439,24 @@ export const translations = {
             imageModel: "Имя Изображения Модели (Опц.)",
             desc: "Совместимо с OpenAI (Ollama, vLLM)"
         },
+        dev: {
+            title: "Режим Разработчика",
+            enable: "Включить режим разработчика",
+            warning: "Внимание: Изменение промптов может сломать логику игры.",
+            promptType: "Тип промпта",
+            editor: "Редактор промптов",
+            save: "Сохранить версию",
+            history: "История / Откат",
+            reset: "Загрузить стандарт",
+            types: {
+                initial: "Начальная сцена",
+                next: "Следующая сцена",
+                secret: "Секретное воспоминание",
+                image: "Генерация изображений"
+            },
+            savedToast: "Версия сохранена!",
+            restoredToast: "Версия восстановлена!"
+        },
         save: "Сохранить",
         cancel: "Отмена",
         saved: "Сохранено!"
@@ -500,6 +572,24 @@ export const translations = {
             imageApiUrl: "URL API Image (Opt.)",
             imageModel: "Modèle Image (Opt.)",
             desc: "Compatible format OpenAI (Ollama, vLLM...)"
+        },
+        dev: {
+            title: "Mode Développeur",
+            enable: "Activer le mode développeur",
+            warning: "Avancé : Modifier les prompts peut casser la logique du jeu.",
+            promptType: "Type de Prompt",
+            editor: "Éditeur de Prompt",
+            save: "Sauvegarder Version",
+            history: "Historique / Restaurer",
+            reset: "Charger Défaut",
+            types: {
+                initial: "Scène Initiale",
+                next: "Scène Suivante",
+                secret: "Souvenir Secret",
+                image: "Génération d'Image"
+            },
+            savedToast: "Version sauvegardée !",
+            restoredToast: "Version restaurée !"
         },
         save: "Sauvegarder",
         cancel: "Annuler",

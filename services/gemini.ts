@@ -1,8 +1,8 @@
 
-
 import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
 import { getStoredConfig } from "./config";
+import { getActivePromptTemplate, renderPrompt } from "./promptService";
 
 // --- Schemas ---
 
@@ -264,19 +264,12 @@ const generateText = async (
 // --- Exported Functions ---
 
 export const generateInitialScene = async (theme: string, language: string, playerName: string): Promise<SceneResponse> => {
-  const prompt = `
-    Start a new visual novel game.
-    Theme: "${theme}"
-    Player Name: "${playerName}"
-    Language: "${language}" (Output all narrative/text in this language)
-    
-    1. Create 3 heroines fitting this theme (Archetypes, Names, Visuals).
-    2. Scene: Introductory scene fitting the theme.
-    3. Intro text: 1 sentence greeting or action from a main heroine.
-    4. 3 Choices for the player to start the story.
-    5. Suggest BGM and Sound Effect.
-    6. IMPORTANT: "imagePrompt" MUST be provided (cannot be null) for the first scene.
-  `;
+  const template = await getActivePromptTemplate('initial');
+  const prompt = renderPrompt(template, {
+    theme,
+    language,
+    playerName
+  });
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
 
@@ -285,50 +278,46 @@ export const generateNextScene = async (
   choiceId: string
 ): Promise<SceneResponse> => {
   
-  // Pacing Logic: Every 4th turn is a major decision (Turns 4, 8, 12...)
-  // Otherwise, it's a conversation continuation.
   const nextTurn = currentState.turnCount + 1;
   const isDecisionTurn = nextTurn % 4 === 0;
+  const choiceText = currentState.choices.find(c => c.id === choiceId)?.text || "Unknown";
 
-  const prompt = `
-    Theme: "${currentState.theme}"
-    Player Name: "${currentState.playerName}"
-    Language: "${currentState.language}" (Output all narrative/text in this language)
-    Context:
-    - Location: ${currentState.location}
-    - Quest: ${currentState.currentQuest}
-    - Heroines: ${currentState.heroines.map(h => `${h.name} (${h.affection})`).join(", ")}
-    - History: ${currentState.history.slice(-3).join(" | ")}
+  const choiceInstruction = isDecisionTurn 
+    ? "This is a MAJOR DECISION point. Provide 3 distinct, diverging choices that affect the plot or relationships." 
+    : "This is a CONVERSATION step. Provide exactly 1 linear choice: [{ 'id': 'continue', 'text': 'Next' }] to advance the dialogue naturally.";
 
-    Action: Player chose "${currentState.choices.find(c => c.id === choiceId)?.text}".
+  const template = await getActivePromptTemplate('next');
+  const prompt = renderPrompt(template, {
+    theme: currentState.theme,
+    playerName: currentState.playerName,
+    language: currentState.language,
+    location: currentState.location,
+    currentQuest: currentState.currentQuest,
+    heroinesList: currentState.heroines.map(h => `${h.name} (${h.affection})`).join(", "),
+    historySummary: currentState.history.slice(-3).join(" | "),
+    choiceText,
+    choiceInstruction
+  });
 
-    Task:
-    1. Write 1-2 sentences of reaction/dialogue based on the action. Use the player's name if appropriate.
-    2. Update stats.
-    3. **Choices Generation**:
-       ${isDecisionTurn 
-         ? "This is a MAJOR DECISION point. Provide 3 distinct, diverging choices that affect the plot or relationships." 
-         : "This is a CONVERSATION step. Provide exactly 1 linear choice: [{ 'id': 'continue', 'text': 'Next' }] to advance the dialogue naturally."}
-    4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. **If the background is the same, strictly return NULL for imagePrompt to save costs.**
-    5. Suggest BGM (mood) and SFX.
-  `;
   return generateText(prompt, getJsonSchemaInstruction(), sceneSchema);
 };
 
 export const generateSecretMemory = async (heroine: Heroine, theme: string, language: string): Promise<UnlockableCG & { imagePrompt: string }> => {
-  const prompt = `
-    Generate a 'Secret Memory' (Bonus CG) for ${heroine.name} (Archetype: ${heroine.archetype}).
-    Theme: "${theme}"
-    Language: "${language}" (Output titles/descriptions in this language)
-    Scene: A romantic, hypothetical future date or secret moment.
-    Return JSON: { id, title, description, imagePrompt }.
-  `;
+  const template = await getActivePromptTemplate('secret');
+  const prompt = renderPrompt(template, {
+    heroineName: heroine.name,
+    heroineArchetype: heroine.archetype,
+    theme,
+    language
+  });
+  
   return generateText(prompt, getSecretMemorySchemaInstruction(), secretMemorySchema);
 };
 
 export const generateSceneImage = async (prompt: string): Promise<string> => {
-  // Optimized prompt for Japanese anime style with high quality and bright colors
-  const enhancedPrompt = `Japanese anime art style, masterpiece, best quality, ultra detailed, 4k, vibrant, bright colors, soft lighting, beautiful composition, detailed background, visual novel CG. ${prompt}`;
+  const template = await getActivePromptTemplate('image');
+  const enhancedPrompt = renderPrompt(template, { prompt });
+  
   const config = getStoredConfig();
 
   // === CUSTOM IMAGE API ===
