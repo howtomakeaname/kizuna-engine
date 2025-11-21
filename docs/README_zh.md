@@ -1,3 +1,4 @@
+
 # Kizuna Engine - 羁绊引擎 (Infinite Galgame)
 
 ![开始画面](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
@@ -8,7 +9,7 @@
 
 由生成式 AI 驱动的实时、无限视觉小说生成器。体验独特的故事情节，每一次选择都至关重要，支持动态素材生成与多语言环境。
 
-[英文文档](../README.md)
+[英文文档 (English)](../docs/README_en.md) | [回到主页 (Home)](../README.md)
 
 ## 配置说明
 

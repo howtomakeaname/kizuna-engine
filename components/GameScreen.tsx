@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { GameState, Choice } from '../types';
-import { MessageCircle, Sparkles, Image as ImageIcon, FastForward, SkipForward, Menu, Settings, EyeOff, History, ChevronRight, Loader2 } from 'lucide-react';
+import { MessageCircle, Sparkles, Image as ImageIcon, FastForward, SkipForward, Menu, Settings, EyeOff, History, ChevronRight, Loader2, Save, RotateCcw, MapPin } from 'lucide-react';
 import { TranslationType } from '../i18n/translations';
 
 interface GameScreenProps {
@@ -9,6 +9,9 @@ interface GameScreenProps {
   bgImage: string;
   onChoiceSelected: (choiceId: string) => void;
   onToggleMenu: () => void;
+  onOpenSave: () => void;
+  onOpenLoad: () => void;
+  onOpenGallery: () => void;
   isProcessing: boolean;
   isImageLoading: boolean;
   t: TranslationType;
@@ -19,6 +22,9 @@ const GameScreen: React.FC<GameScreenProps> = ({
   bgImage, 
   onChoiceSelected, 
   onToggleMenu,
+  onOpenSave,
+  onOpenLoad,
+  onOpenGallery,
   isProcessing,
   isImageLoading,
   t
@@ -109,14 +115,23 @@ const GameScreen: React.FC<GameScreenProps> = ({
     }
   };
 
+  const actionButtons = [
+    { icon: Save, action: onOpenSave, title: t.menu.actions.save },
+    { icon: RotateCcw, action: onOpenLoad, title: t.menu.actions.load },
+    { icon: ImageIcon, action: onOpenGallery, title: t.menu.actions.gallery },
+    { icon: EyeOff, action: () => setHideUI(true), title: t.game.hideUi },
+    { icon: FastForward, action: () => setIsSkipMode(!isSkipMode), title: t.game.skip, active: isSkipMode },
+    { icon: Menu, action: onToggleMenu, title: t.game.menu }
+  ];
+
   return (
-    <div className="relative w-full h-full overflow-hidden bg-black select-none group">
+    <div className="relative w-full h-full overflow-hidden bg-gray-900 select-none group font-sans">
       
-      {/* Background Layer */}
+      {/* Background Layer with Fade Transition Logic */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out"
         style={{ 
-          backgroundImage: `url(${bgImage})`,
+          backgroundImage: bgImage ? `url(${bgImage})` : 'linear-gradient(to bottom, #2a1b2d, #1a1a2e)',
           filter: isProcessing ? 'blur(2px) brightness(0.9)' : 'none',
           transform: isProcessing ? 'scale(1.02)' : 'scale(1)'
         }}
@@ -132,15 +147,36 @@ const GameScreen: React.FC<GameScreenProps> = ({
           />
       )}
 
-      {/* Top HUD (Date/Location) */}
+      {/* Top Left HUD (Location/Turn) - Aligned to top-6 left-6 */}
       {!hideUI && (
-        <div className="absolute top-6 left-6 z-20 flex flex-col pointer-events-none">
-            <div className="bg-black/60 backdrop-blur-md text-white px-4 py-1 rounded-t-lg text-xs uppercase tracking-widest font-bold border-l-4 border-pink-500">
+        <div className="absolute top-6 left-6 z-20 pointer-events-none flex flex-col items-start gap-2 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="bg-black/50 backdrop-blur-md text-white px-5 py-2 rounded-full text-xs uppercase tracking-widest font-bold border border-white/10 shadow-lg flex items-center gap-2">
+                <MapPin className="w-3 h-3 text-pink-400" />
                 {gameState.location}
             </div>
-            <div className="bg-white/90 text-black px-4 py-1 rounded-b-lg text-xs font-medium shadow-lg">
+            <div className="bg-white/90 text-gray-900 px-4 py-1 rounded-full text-[10px] font-black shadow-lg border border-white/20">
                 {t.game.turn} {gameState.turnCount}
             </div>
+        </div>
+      )}
+
+      {/* Top Right HUD (Circular Buttons) - Aligned to top-6 right-6 */}
+      {!hideUI && (
+        <div className="absolute top-6 right-6 z-30 flex gap-3 flex-wrap justify-end max-w-[300px] md:max-w-none animate-in fade-in slide-in-from-right-4 duration-700">
+            {actionButtons.map((btn, idx) => (
+                <button
+                    key={idx}
+                    onClick={btn.action}
+                    title={btn.title}
+                    className={`w-10 h-10 rounded-full backdrop-blur-md shadow-lg border border-white/10 flex items-center justify-center transition-all duration-200 transform hover:scale-110 hover:border-pink-400 ${
+                        btn.active 
+                        ? 'bg-pink-600 text-white animate-pulse ring-2 ring-pink-400 ring-offset-2 ring-offset-transparent' 
+                        : 'bg-black/40 text-gray-200 hover:bg-pink-600 hover:text-white'
+                    }`}
+                >
+                    <btn.icon className="w-4 h-4" />
+                </button>
+            ))}
         </div>
       )}
 
@@ -149,37 +185,6 @@ const GameScreen: React.FC<GameScreenProps> = ({
         <div className="absolute bottom-32 left-6 z-20 flex items-center space-x-2 bg-black/70 backdrop-blur-md text-white px-4 py-2 rounded-full shadow-lg border border-white/10 animate-pulse">
             <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
             <span className="text-xs font-bold tracking-wide">{t.game.generatingImage}</span>
-        </div>
-      )}
-
-      {/* System Buttons (Top Right) */}
-      {!hideUI && (
-        <div className="absolute top-6 right-6 z-30 flex gap-3">
-            <button
-                onClick={() => setHideUI(true)}
-                className="p-2 bg-black/40 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition-colors"
-                title={t.game.hideUi}
-            >
-                <EyeOff className="w-5 h-5" />
-            </button>
-            <button
-                onClick={() => setIsSkipMode(!isSkipMode)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-wider backdrop-blur-md transition-all shadow-lg border ${
-                    isSkipMode 
-                    ? 'bg-pink-600 text-white border-pink-500 animate-pulse' 
-                    : 'bg-black/40 text-white border-white/10 hover:bg-black/60'
-                }`}
-            >
-                <FastForward className={`w-4 h-4 ${isSkipMode ? 'fill-current' : ''}`} />
-                <span>{isSkipMode ? t.game.skipping : t.game.skip}</span>
-            </button>
-            <button
-                onClick={onToggleMenu}
-                className="p-2 bg-white/90 hover:bg-white text-pink-600 rounded-full shadow-lg transition-transform hover:scale-110"
-                title={t.game.menu}
-            >
-                <Menu className="w-5 h-5" />
-            </button>
         </div>
       )}
 
@@ -198,16 +203,16 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
       {/* Choices Overlay - Centered (Only for Decision Mode) */}
       {!hideUI && !isProcessing && (!isTyping || isSkipMode) && !isLinearScene && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 pointer-events-none">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 pointer-events-none pb-32">
             {gameState.choices.map((choice, idx) => (
                 <button
                     key={choice.id}
                     onClick={() => onChoiceSelected(choice.id)}
-                    className="pointer-events-auto group relative w-full max-w-2xl overflow-hidden bg-black/70 hover:bg-pink-600/90 backdrop-blur-md border-y border-white/20 hover:border-white/60 text-center py-4 px-8 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                    className="pointer-events-auto group relative w-full max-w-xl overflow-hidden bg-black/60 hover:bg-pink-900/80 backdrop-blur-md border-y border-pink-500/30 hover:border-pink-400 text-center py-4 px-8 transition-all duration-300 transform hover:scale-105 shadow-2xl animate-in fade-in slide-in-from-bottom-4"
                     style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                    <span className="font-display font-bold text-xl text-gray-100 group-hover:text-white tracking-wide shadow-black drop-shadow-md">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-500/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    <span className="font-display font-bold text-lg text-gray-100 group-hover:text-white tracking-wide shadow-black drop-shadow-md">
                         {choice.text}
                     </span>
                 </button>
@@ -224,50 +229,40 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </div>
       )}
 
-      {/* ADV Text Box Area */}
+      {/* ADV Text Box Area - Re-styled for VN feel */}
       {!hideUI && (
-          <div className="absolute bottom-0 inset-x-0 z-20 p-4 md:p-8 pb-6 flex justify-center">
-            <div className="w-full max-w-5xl relative">
+          <div className="absolute bottom-0 inset-x-0 z-20 p-4 pb-6 flex justify-center animate-in slide-in-from-bottom-10 fade-in duration-700">
+            <div className="w-full max-w-3xl relative">
                 
-                {/* Speaker Name Tag */}
+                {/* Speaker Name Tag - Floating */}
                 {speakerName && (
-                    <div className="absolute -top-5 left-0 z-30">
-                        <div className="bg-gradient-to-r from-pink-600 to-rose-600 text-white px-8 py-2 rounded-t-xl rounded-br-xl shadow-lg border-t border-l border-white/30 font-bold text-lg tracking-wider transform -skew-x-12 origin-bottom-left">
-                            <span className="block transform skew-x-12">{speakerName}</span>
+                    <div className="absolute -top-9 left-6 z-30 animate-in slide-in-from-left-4 fade-in duration-500">
+                        <div className="bg-gradient-to-r from-pink-600/90 to-rose-600/90 backdrop-blur-md text-white px-6 py-1 rounded-t-lg shadow-lg border border-pink-400/50 border-b-0 font-bold text-base tracking-wider transform -skew-x-12 origin-bottom-left">
+                            <span className="block transform skew-x-12 shadow-black drop-shadow-sm">{speakerName}</span>
                         </div>
                     </div>
                 )}
 
-                {/* Main Text Box */}
+                {/* Main Text Box - Glassmorphic Panel */}
                 <div 
-                    className={`bg-slate-900/85 backdrop-blur-xl border-t-2 border-pink-400/50 rounded-xl rounded-tl-none shadow-2xl p-6 md:p-8 min-h-[160px] relative overflow-hidden cursor-pointer transition-colors hover:bg-slate-900/90`}
+                    className={`bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl p-6 min-h-[140px] relative overflow-hidden cursor-pointer transition-all duration-300 hover:bg-black/70 hover:border-pink-500/30 ring-1 ring-white/5`}
                     onClick={handleScreenClick}
                 >
-                    {/* Decorative lines */}
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-pink-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
-
-                    <p ref={narrativeRef} className="text-lg md:text-2xl leading-relaxed text-gray-100 font-medium font-sans tracking-wide drop-shadow-md">
+                    {/* Decorative Gradient */}
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-pink-500/5 to-transparent rounded-bl-full pointer-events-none"></div>
+                    
+                    <p ref={narrativeRef} className="text-lg leading-relaxed text-gray-100 font-medium font-sans tracking-wide drop-shadow-md relative z-10">
                         {speakerName ? '' : ''}
                         {typedNarrative}
-                        {!isSkipMode && isTyping && <span className="inline-block w-2 h-6 ml-1 bg-pink-500 animate-pulse align-middle"></span>}
+                        {!isSkipMode && isTyping && <span className="inline-block w-2 h-5 ml-1 bg-pink-500 animate-pulse align-middle rounded-sm"></span>}
                     </p>
                     
                     {/* Click to Continue Indicator (Blinking Arrow) */}
                     {!isTyping && !isProcessing && isLinearScene && (
-                        <div className="absolute bottom-4 right-4 animate-bounce text-pink-500">
-                            <ChevronRight className="w-8 h-8" />
+                        <div className="absolute bottom-3 right-5 animate-bounce text-pink-500/80">
+                            <ChevronRight className="w-6 h-6" />
                         </div>
                     )}
-
-                    {/* Text Box Controls */}
-                    <div className="absolute bottom-4 right-14 flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-                        <button 
-                            className={`text-xs font-bold uppercase px-2 ${isSkipMode ? 'text-pink-400' : 'text-gray-400 hover:text-white'}`}
-                            onClick={(e) => { e.stopPropagation(); setIsSkipMode(!isSkipMode); }}
-                        >
-                            {t.game.skip}
-                        </button>
-                    </div>
                 </div>
             </div>
           </div>

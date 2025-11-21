@@ -26,6 +26,7 @@ export interface SavedCG extends UnlockableCG {
 }
 
 export interface GameState {
+  playerName: string; // Name of the protagonist
   narrative: string;
   choices: Choice[];
   heroines: Heroine[];
@@ -71,4 +72,19 @@ export enum GameStatus {
   PLAYING,
   GAME_OVER,
   ERROR
+}
+
+export type AiProvider = 'gemini' | 'siliconflow' | 'custom';
+
+export interface AppConfig {
+  aiProvider: AiProvider;
+  geminiKey: string;
+  siliconFlowKey: string;
+  siliconFlowModel: string;
+  siliconFlowImageModel: string;
+  customApiUrl: string;
+  customApiKey: string;
+  customModelName: string;
+  customImageApiUrl: string;
+  customImageModelName: string;
 }

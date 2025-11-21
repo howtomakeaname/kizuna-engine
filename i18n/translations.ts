@@ -1,4 +1,5 @@
 
+
 export const translations = {
   en: {
     start: {
@@ -7,7 +8,38 @@ export const translations = {
       newGame: "Start New Game",
       load: "Load",
       gallery: "Gallery",
+      config: "Config",
       poweredBy: "Powered by",
+      enterName: "Enter Your Name",
+      namePlaceholder: "Protagonist",
+      startJourney: "Start Journey",
+      loading: "Weaving your destiny...",
+      preparing: "Summoning heroines...",
+    },
+    config: {
+        title: "Engine Configuration",
+        provider: "AI Provider",
+        gemini: {
+            key: "Gemini API Key",
+            desc: "Get free key from AI Studio (Google)"
+        },
+        siliconflow: {
+            key: "SiliconFlow API Key",
+            model: "Text Model",
+            imageModel: "Image Model",
+            desc: "DeepSeek & Qwen models"
+        },
+        custom: {
+            textApiUrl: "Text API URL",
+            textApiKey: "Text API Key (Optional)",
+            textModel: "Text Model Name",
+            imageApiUrl: "Image API URL (Optional)",
+            imageModel: "Image Model Name (Optional)",
+            desc: "Compatible with OpenAI format (Ollama, vLLM, etc.)"
+        },
+        save: "Save Configuration",
+        cancel: "Cancel",
+        saved: "Settings Saved!"
     },
     theme: {
       title: "Select Story Theme",
@@ -15,7 +47,7 @@ export const translations = {
       custom: "Custom Scenario",
       customPlaceholder: "E.g. Cyberpunk Detective, Zombie Survival...",
       cancel: "Cancel",
-      start: "Start Game",
+      start: "Next", 
       names: {
         "Japanese High School": "Japanese High School",
         "School & Magic Academy": "School & Magic Academy",
@@ -62,6 +94,8 @@ export const translations = {
         audio: "Audio Settings",
         volume: "Master Volume",
         mute: "Mute All Sound",
+        playerName: "Player Name",
+        changeName: "Update Name"
       },
       emptyBag: "Your bag is empty."
     },
@@ -90,7 +124,38 @@ export const translations = {
       newGame: "开始新游戏",
       load: "读取进度",
       gallery: "画廊",
+      config: "设置",
       poweredBy: "技术支持",
+      enterName: "输入你的名字",
+      namePlaceholder: "主人公",
+      startJourney: "开启旅程",
+      loading: "正在编织命运...",
+      preparing: "正在召唤女主角...",
+    },
+    config: {
+        title: "引擎配置",
+        provider: "AI 提供商",
+        gemini: {
+            key: "Gemini API Key",
+            desc: "从 Google AI Studio 获取免费 Key"
+        },
+        siliconflow: {
+            key: "SiliconFlow API Key",
+            model: "文本模型",
+            imageModel: "图像模型",
+            desc: "DeepSeek 与 Qwen 模型"
+        },
+        custom: {
+            textApiUrl: "文本 API URL",
+            textApiKey: "文本 API Key (可选)",
+            textModel: "文本模型名称",
+            imageApiUrl: "图像 API URL (可选)",
+            imageModel: "图像模型名称 (可选)",
+            desc: "兼容 OpenAI 格式 (Ollama, vLLM 等)"
+        },
+        save: "保存配置",
+        cancel: "取消",
+        saved: "设置已保存！"
     },
     theme: {
       title: "选择故事主题",
@@ -98,7 +163,7 @@ export const translations = {
       custom: "自定义剧本",
       customPlaceholder: "例如：赛博朋克侦探，丧尸围城...",
       cancel: "取消",
-      start: "开始游戏",
+      start: "下一步",
       names: {
         "Japanese High School": "日式高中校园",
         "School & Magic Academy": "魔法学院",
@@ -145,6 +210,8 @@ export const translations = {
         audio: "音频设置",
         volume: "主音量",
         mute: "静音",
+        playerName: "玩家昵称",
+        changeName: "修改昵称"
       },
       emptyBag: "背包是空的。"
     },
@@ -173,7 +240,38 @@ export const translations = {
       newGame: "初めから",
       load: "続きから",
       gallery: "ギャラリー",
+      config: "設定",
       poweredBy: "Powered by",
+      enterName: "名前を入力してください",
+      namePlaceholder: "主人公",
+      startJourney: "物語を始める",
+      loading: "運命を紡いでいます...",
+      preparing: "ヒロインを召喚中...",
+    },
+    config: {
+        title: "エンジン設定",
+        provider: "AI プロバイダー",
+        gemini: {
+            key: "Gemini API Key",
+            desc: "Google AI Studioから無料キーを取得"
+        },
+        siliconflow: {
+            key: "SiliconFlow API Key",
+            model: "テキストモデル",
+            imageModel: "画像モデル",
+            desc: "DeepSeek & Qwen モデル"
+        },
+        custom: {
+            textApiUrl: "テキスト API URL",
+            textApiKey: "テキスト API Key (任意)",
+            textModel: "テキストモデル名",
+            imageApiUrl: "画像 API URL (任意)",
+            imageModel: "画像モデル名 (任意)",
+            desc: "OpenAI形式互換 (Ollama, vLLMなど)"
+        },
+        save: "設定を保存",
+        cancel: "キャンセル",
+        saved: "設定を保存しました！"
     },
     theme: {
       title: "テーマ選択",
@@ -181,7 +279,7 @@ export const translations = {
       custom: "カスタムシナリオ",
       customPlaceholder: "例：サイバーパンク、ゾンビサバイバル...",
       cancel: "キャンセル",
-      start: "ゲーム開始",
+      start: "次へ",
       names: {
         "Japanese High School": "日本の高校生活",
         "School & Magic Academy": "魔法学園",
@@ -228,6 +326,8 @@ export const translations = {
         audio: "オーディオ設定",
         volume: "主音量",
         mute: "ミュート",
+        playerName: "プレイヤー名",
+        changeName: "名前変更"
       },
       emptyBag: "空っぽです。"
     },
@@ -256,7 +356,38 @@ export const translations = {
       newGame: "Новая игра",
       load: "Загрузить",
       gallery: "Галерея",
+      config: "Конфиг",
       poweredBy: "При поддержке",
+      enterName: "Введите ваше имя",
+      namePlaceholder: "Герой",
+      startJourney: "Начать путь",
+      loading: "Плетение судьбы...",
+      preparing: "Призыв героинь...",
+    },
+    config: {
+        title: "Настройки движка",
+        provider: "AI Провайдер",
+        gemini: {
+            key: "Gemini API Key",
+            desc: "Бесплатный ключ в AI Studio"
+        },
+        siliconflow: {
+            key: "SiliconFlow API Key",
+            model: "Текстовая модель",
+            imageModel: "Модель изображений",
+            desc: "Модели DeepSeek & Qwen"
+        },
+        custom: {
+            textApiUrl: "URL Текст API",
+            textApiKey: "Ключ Текст API (Опц.)",
+            textModel: "Имя Текст Модели",
+            imageApiUrl: "URL Изображения API (Опц.)",
+            imageModel: "Имя Изображения Модели (Опц.)",
+            desc: "Совместимо с OpenAI (Ollama, vLLM)"
+        },
+        save: "Сохранить",
+        cancel: "Отмена",
+        saved: "Сохранено!"
     },
     theme: {
       title: "Выбор темы",
@@ -264,7 +395,7 @@ export const translations = {
       custom: "Свой сценарий",
       customPlaceholder: "Напр.: Киберпанк-детектив, Выживание...",
       cancel: "Отмена",
-      start: "Начать",
+      start: "Далее",
       names: {
         "Japanese High School": "Японская школа",
         "School & Magic Academy": "Академия магии",
@@ -311,6 +442,8 @@ export const translations = {
         audio: "Настройки звука",
         volume: "Громкость",
         mute: "Без звука",
+        playerName: "Имя игрока",
+        changeName: "Изменить"
       },
       emptyBag: "В сумке пусто."
     },
@@ -339,7 +472,38 @@ export const translations = {
       newGame: "Nouvelle Partie",
       load: "Charger",
       gallery: "Galerie",
+      config: "Config",
       poweredBy: "Propulsé par",
+      enterName: "Entrez votre nom",
+      namePlaceholder: "Protagoniste",
+      startJourney: "Commencer l'aventure",
+      loading: "Tissage de votre destin...",
+      preparing: "Invocation des héroïnes...",
+    },
+    config: {
+        title: "Configuration du Moteur",
+        provider: "Fournisseur IA",
+        gemini: {
+            key: "Clé API Gemini",
+            desc: "Obtenir gratuitement via Google AI Studio"
+        },
+        siliconflow: {
+            key: "Clé API SiliconFlow",
+            model: "Modèle Texte",
+            imageModel: "Modèle Image",
+            desc: "Modèles DeepSeek & Qwen"
+        },
+        custom: {
+            textApiUrl: "URL API Texte",
+            textApiKey: "Clé API Texte (Opt.)",
+            textModel: "Modèle Texte",
+            imageApiUrl: "URL API Image (Opt.)",
+            imageModel: "Modèle Image (Opt.)",
+            desc: "Compatible format OpenAI (Ollama, vLLM...)"
+        },
+        save: "Sauvegarder",
+        cancel: "Annuler",
+        saved: "Paramètres sauvegardés!"
     },
     theme: {
       title: "Choisir un Thème",
@@ -347,7 +511,7 @@ export const translations = {
       custom: "Scénario Personnalisé",
       customPlaceholder: "Ex: Détective Cyberpunk, Survie Zombie...",
       cancel: "Annuler",
-      start: "Commencer",
+      start: "Suivant",
       names: {
         "Japanese High School": "Lycée Japonais",
         "School & Magic Academy": "Académie de Magie",
@@ -394,6 +558,8 @@ export const translations = {
         audio: "Paramètres Audio",
         volume: "Volume Principal",
         mute: "Muet",
+        playerName: "Nom du Joueur",
+        changeName: "Changer"
       },
       emptyBag: "Votre sac est vide."
     },

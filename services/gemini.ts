@@ -1,17 +1,8 @@
 
+
 import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameState, SceneResponse, Heroine, UnlockableCG } from "../types";
-
-// --- Configuration ---
-const AI_PROVIDER = process.env.AI_PROVIDER || 'gemini';
-const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY;
-const SILICONFLOW_KEY = process.env.SILICONFLOW_API_KEY;
-
-// Custom API Configuration
-const CUSTOM_API_URL = process.env.CUSTOM_API_URL; // e.g., "http://localhost:11434/v1/chat/completions"
-const CUSTOM_API_KEY = process.env.CUSTOM_API_KEY;
-const CUSTOM_MODEL_NAME = process.env.CUSTOM_MODEL_NAME;
-const CUSTOM_IMAGE_API_URL = process.env.CUSTOM_IMAGE_API_URL; // e.g., "http://localhost:11434/v1/images/generations"
+import { getStoredConfig } from "./config";
 
 // --- Schemas ---
 
@@ -142,6 +133,7 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 4. **Anime Tropes**: Lean into tropes appropriate for the theme.
 5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene.
 6. **Language**: You MUST output the narrative, choices, quest, location, and heroine details in the requested target language.
+7. **Player Name**: Refer to the main character as the provided Player Name if needed, but prefer first-person perspective or "You".
 
 **Game Rules**:
 1. Track affection (0-100).
@@ -158,23 +150,25 @@ const generateText = async (
   geminiSchema: Schema
 ): Promise<any> => {
   
+  const config = getStoredConfig();
+
   // === CUSTOM API (User Built / Self-Hosted) ===
-  if (AI_PROVIDER === 'custom') {
-    if (!CUSTOM_API_URL) throw new Error("CUSTOM_API_URL is missing. Please check your .env file.");
+  if (config.aiProvider === 'custom') {
+    if (!config.customApiUrl) throw new Error("CUSTOM_API_URL is missing. Please configure settings.");
 
     try {
       const headers: Record<string, string> = {
         "Content-Type": "application/json"
       };
-      if (CUSTOM_API_KEY) {
-        headers["Authorization"] = `Bearer ${CUSTOM_API_KEY}`;
+      if (config.customApiKey) {
+        headers["Authorization"] = `Bearer ${config.customApiKey}`;
       }
 
-      const response = await fetch(CUSTOM_API_URL, {
+      const response = await fetch(config.customApiUrl, {
         method: "POST",
         headers,
         body: JSON.stringify({
-          model: CUSTOM_MODEL_NAME || "gpt-3.5-turbo", // Default to common alias if not provided
+          model: config.customModelName || "gpt-3.5-turbo", 
           messages: [
             { role: "system", content: SYSTEM_INSTRUCTION + "\n\n" + schemaInstruction },
             { role: "user", content: prompt }
@@ -206,18 +200,18 @@ const generateText = async (
   }
 
   // === SILICONFLOW (DeepSeek) ===
-  else if (AI_PROVIDER === 'siliconflow') {
-    if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing in environment variables.");
+  else if (config.aiProvider === 'siliconflow') {
+    if (!config.siliconFlowKey) throw new Error("SiliconFlow Key is missing. Please configure settings.");
 
     try {
       const response = await fetch("https://api.siliconflow.cn/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${SILICONFLOW_KEY}`,
+          "Authorization": `Bearer ${config.siliconFlowKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "deepseek-ai/DeepSeek-V3", 
+          model: config.siliconFlowModel || "deepseek-ai/DeepSeek-V3", 
           messages: [
             { role: "system", content: SYSTEM_INSTRUCTION + "\n\n" + schemaInstruction },
             { role: "user", content: prompt }
@@ -249,8 +243,8 @@ const generateText = async (
   
   // === GEMINI (Default) ===
   else {
-    if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
-    const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
+    if (!config.geminiKey) throw new Error("Gemini API Key is missing. Please configure settings.");
+    const ai = new GoogleGenAI({ apiKey: config.geminiKey });
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -269,10 +263,11 @@ const generateText = async (
 
 // --- Exported Functions ---
 
-export const generateInitialScene = async (theme: string, language: string): Promise<SceneResponse> => {
+export const generateInitialScene = async (theme: string, language: string, playerName: string): Promise<SceneResponse> => {
   const prompt = `
     Start a new visual novel game.
     Theme: "${theme}"
+    Player Name: "${playerName}"
     Language: "${language}" (Output all narrative/text in this language)
     
     1. Create 3 heroines fitting this theme (Archetypes, Names, Visuals).
@@ -297,6 +292,7 @@ export const generateNextScene = async (
 
   const prompt = `
     Theme: "${currentState.theme}"
+    Player Name: "${currentState.playerName}"
     Language: "${currentState.language}" (Output all narrative/text in this language)
     Context:
     - Location: ${currentState.location}
@@ -307,7 +303,7 @@ export const generateNextScene = async (
     Action: Player chose "${currentState.choices.find(c => c.id === choiceId)?.text}".
 
     Task:
-    1. Write 1-2 sentences of reaction/dialogue based on the action.
+    1. Write 1-2 sentences of reaction/dialogue based on the action. Use the player's name if appropriate.
     2. Update stats.
     3. **Choices Generation**:
        ${isDecisionTurn 
@@ -332,28 +328,35 @@ export const generateSecretMemory = async (heroine: Heroine, theme: string, lang
 
 export const generateSceneImage = async (prompt: string): Promise<string> => {
   const enhancedPrompt = `Anime art style, masterpiece, high quality, 4k, cinematic lighting, detailed background. ${prompt}`;
+  const config = getStoredConfig();
 
   // === CUSTOM IMAGE API ===
-  if (AI_PROVIDER === 'custom') {
-    if (CUSTOM_IMAGE_API_URL) {
+  if (config.aiProvider === 'custom') {
+    if (config.customImageApiUrl) {
        try {
           const headers: Record<string, string> = {
             "Content-Type": "application/json"
           };
-          if (CUSTOM_API_KEY) {
-            headers["Authorization"] = `Bearer ${CUSTOM_API_KEY}`;
+          if (config.customApiKey) {
+            headers["Authorization"] = `Bearer ${config.customApiKey}`;
           }
 
-          // Expecting OpenAI-compatible Image Generation Endpoint (e.g., /v1/images/generations)
-          const response = await fetch(CUSTOM_IMAGE_API_URL, {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
+          const body: any = {
               prompt: enhancedPrompt,
               n: 1,
-              size: "1024x1024", // Standard size
-              response_format: "b64_json" // Prefer base64 for immediate display
-            })
+              size: "1024x1024", 
+              response_format: "b64_json" 
+          };
+          
+          // Inject model if configured
+          if (config.customImageModelName) {
+              body.model = config.customImageModelName;
+          }
+
+          const response = await fetch(config.customImageApiUrl, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body)
           });
 
           if (!response.ok) throw new Error("Custom Image API Error");
@@ -379,20 +382,20 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
   }
 
   // === SILICONFLOW IMAGE ===
-  else if (AI_PROVIDER === 'siliconflow') {
-    if (!SILICONFLOW_KEY) throw new Error("SILICONFLOW_API_KEY is missing");
+  else if (config.aiProvider === 'siliconflow') {
+    if (!config.siliconFlowKey) throw new Error("SiliconFlow Key is missing");
 
     try {
       const response = await fetch("https://api.siliconflow.cn/v1/images/generations", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${SILICONFLOW_KEY}`,
+          "Authorization": `Bearer ${config.siliconFlowKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "Qwen/Qwen-Image",
+          model: config.siliconFlowImageModel || "Qwen/Qwen-Image", 
           prompt: enhancedPrompt,
-          image_size: "1664x928",
+          image_size: "1024x1024", // Updated from 1664x928 as Qwen-Image often prefers square or specific standard sizes
           seed: Math.floor(Math.random() * 999999999)
         })
       });
@@ -423,8 +426,8 @@ export const generateSceneImage = async (prompt: string): Promise<string> => {
   
   // === GEMINI IMAGE (Default) ===
   else {
-    if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY is missing.");
-    const ai = new GoogleGenAI({ apiKey: GEMINI_KEY });
+    if (!config.geminiKey) throw new Error("Gemini Key is missing");
+    const ai = new GoogleGenAI({ apiKey: config.geminiKey });
     try {
       const response = await ai.models.generateImages({
         model: "imagen-4.0-generate-001",

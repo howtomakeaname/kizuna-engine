@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Image as ImageIcon, User, Menu as MenuIcon, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Backpack, MapPin, Target, LockOpen, X, Settings, Image as ImageIcon, User, Menu as MenuIcon, Volume2, VolumeX, Edit2, Save } from 'lucide-react';
 import { GameState, Heroine } from '../types';
 import { TranslationType } from '../i18n/translations';
 
@@ -18,15 +18,25 @@ interface SystemMenuProps {
   setVolume: (v: number) => void;
   isMuted: boolean;
   setIsMuted: (m: boolean) => void;
+  onUpdateName: (newName: string) => void;
 }
 
 const SystemMenu: React.FC<SystemMenuProps> = ({ 
   state, isOpen, onClose, onOpenGallery, onUnlockBonus, onOpenSave, onOpenLoad, processingBonusId, t,
-  volume, setVolume, isMuted, setIsMuted
+  volume, setVolume, isMuted, setIsMuted, onUpdateName
 }) => {
   const [activeTab, setActiveTab] = useState<'status' | 'inventory' | 'system'>('status');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(state.playerName || "");
 
   if (!isOpen) return null;
+
+  const handleSaveName = () => {
+      if (tempName.trim()) {
+          onUpdateName(tempName.trim());
+          setIsEditingName(false);
+      }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -161,6 +171,38 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
             {/* System Tab */}
             {activeTab === 'system' && (
                 <div className="space-y-4">
+                    
+                    {/* Player Name Settings */}
+                    <div className="bg-white border-2 border-gray-100 p-4 rounded-xl shadow-sm">
+                        <div className="flex items-center text-gray-700 font-bold mb-3">
+                            <User className="w-4 h-4 mr-2 text-pink-500" />
+                            {t.menu.settings.playerName}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {isEditingName ? (
+                                <div className="flex-1 flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        value={tempName}
+                                        onChange={(e) => setTempName(e.target.value)}
+                                        className="flex-1 bg-gray-100 border border-pink-200 rounded px-2 py-1 text-sm focus:outline-none focus:border-pink-500"
+                                        autoFocus
+                                    />
+                                    <button onClick={handleSaveName} className="bg-pink-500 text-white p-1.5 rounded hover:bg-pink-600">
+                                        <Save className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg">
+                                    <span className="font-medium text-gray-800">{state.playerName}</span>
+                                    <button onClick={() => setIsEditingName(true)} className="text-gray-400 hover:text-pink-500">
+                                        <Edit2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Audio Settings */}
                     <div className="bg-white border-2 border-gray-100 p-4 rounded-xl shadow-sm">
                         <div className="flex items-center text-gray-700 font-bold mb-3">
@@ -215,7 +257,7 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
         </div>
 
         <div className="p-3 text-center text-[10px] text-gray-400 bg-gray-100">
-            Kizuna Engine v2.1 • {t.game.turn} {state.turnCount} • {state.theme}
+            Kizuna Engine v2.2 • {t.game.turn} {state.turnCount} • {state.theme}
         </div>
       </div>
     </div>
