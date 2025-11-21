@@ -130,8 +130,8 @@ const SaveLoadModal: React.FC<SaveLoadModalProps> = ({ mode, currentState, onClo
   const hasAutoSave = saves.some(s => s.id === 'autosave');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-3xl rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-200">
+      <div className="bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-3xl rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col">
         
         <div className="p-3 md:p-6 bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-between text-white shrink-0">
           <h2 className="text-lg md:text-2xl font-display font-bold flex items-center">

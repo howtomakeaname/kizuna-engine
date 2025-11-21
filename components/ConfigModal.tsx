@@ -281,8 +281,8 @@ const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, onSave, t })
   const inputClasses = "w-full p-2 md:p-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 focus:bg-white focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all text-sm";
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-3xl rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] md:max-h-[90vh] animate-in zoom-in-95">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 backdrop-blur-md p-0 md:p-4 animate-in fade-in duration-300">
+      <div className="bg-white w-full h-full md:h-auto md:max-h-[90vh] md:max-w-3xl rounded-none md:rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95">
         
         {/* Header */}
         <div className="p-3 md:p-6 bg-gray-900 flex items-center justify-between text-white shrink-0">

@@ -133,6 +133,11 @@ export const translations = {
       deleteConfirm: "Are you sure you want to delete this save?",
       saveHere: "Save Here",
       loadGame: "Load Game"
+    },
+    mobile: {
+      rotate: "Please Rotate Your Device",
+      tapToFullscreen: "Tap screen to enter Fullscreen",
+      desc: "Designed for landscape mode."
     }
   },
   zh: {
@@ -267,6 +272,11 @@ export const translations = {
       deleteConfirm: "确定要删除这个存档吗？",
       saveHere: "保存于此",
       loadGame: "读取进度"
+    },
+    mobile: {
+      rotate: "请旋转设备",
+      tapToFullscreen: "点击屏幕进入全屏模式",
+      desc: "建议使用横屏模式游玩。"
     }
   },
   ja: {
@@ -401,6 +411,11 @@ export const translations = {
       deleteConfirm: "このデータを削除しますか？",
       saveHere: "ここにセーブ",
       loadGame: "ロード"
+    },
+    mobile: {
+      rotate: "画面を回転させてください",
+      tapToFullscreen: "タップして全画面表示",
+      desc: "横画面でのプレイを推奨します。"
     }
   },
   ru: {
@@ -535,6 +550,11 @@ export const translations = {
       deleteConfirm: "Вы уверены, что хотите удалить это сохранение?",
       saveHere: "Сохранить здесь",
       loadGame: "Загрузить"
+    },
+    mobile: {
+      rotate: "Поверните устройство",
+      tapToFullscreen: "Нажмите для полного экрана",
+      desc: "Рекомендуется ландшафтный режим."
     }
   },
   fr: {
@@ -669,6 +689,11 @@ export const translations = {
       deleteConfirm: "Voulez-vous vraiment supprimer cette sauvegarde ?",
       saveHere: "Sauvegarder ici",
       loadGame: "Charger"
+    },
+    mobile: {
+      rotate: "Tournez votre appareil",
+      tapToFullscreen: "Appuyez pour le plein écran",
+      desc: "Conçu pour le mode paysage."
     }
   }
 };

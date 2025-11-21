@@ -24,8 +24,8 @@ const NameInputModal: React.FC<NameInputModalProps> = ({ isOpen, onClose, onConf
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 w-full max-w-sm md:max-w-md rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-300">
+      <div className="bg-black/80 md:bg-white/10 backdrop-blur-md border-none md:border border-white/20 w-full h-full md:h-auto md:max-w-md rounded-none md:rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col justify-center">
         
         <div className="p-6 md:p-8 flex flex-col items-center text-center">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-full flex items-center justify-center mb-4 md:mb-6 shadow-lg shadow-pink-500/30">

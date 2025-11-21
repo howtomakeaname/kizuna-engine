@@ -390,7 +390,7 @@ const App: React.FC = () => {
   if (status === GameStatus.START_SCREEN || isGameLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center relative overflow-hidden font-sans">
-        <MobilePortraitOverlay />
+        <MobilePortraitOverlay t={t} />
         
         {isGameLoading && <LoadingScreen t={t} />}
 
@@ -540,7 +540,7 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black relative font-sans">
-      <MobilePortraitOverlay />
+      <MobilePortraitOverlay t={t} />
       
       <AudioController 
         bgm={gameState?.bgm} 

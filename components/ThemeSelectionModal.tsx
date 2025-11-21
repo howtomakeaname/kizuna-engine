@@ -33,8 +33,8 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-      <div className="bg-gray-900/90 backdrop-blur-md border border-white/10 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-300">
+      <div className="bg-gray-900/90 backdrop-blur-md border-none md:border border-white/10 w-full h-full md:h-auto md:max-h-[90vh] md:max-w-2xl rounded-none md:rounded-2xl overflow-hidden shadow-2xl flex flex-col animate-in zoom-in-95 duration-300">
         
         {/* Header */}
         <div className="p-4 md:p-6 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-pink-900/40 to-rose-900/40 shrink-0">

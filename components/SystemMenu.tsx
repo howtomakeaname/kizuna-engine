@@ -39,9 +39,9 @@ const SystemMenu: React.FC<SystemMenuProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-0 md:p-4">
       {/* Mobile/Tablet Style Menu Container */}
-      <div className="w-full max-w-lg h-[95vh] md:h-[80vh] bg-white/95 rounded-3xl shadow-2xl border-4 border-pink-200 overflow-hidden flex flex-col transform transition-transform scale-100">
+      <div className="w-full h-full md:h-[80vh] md:max-w-lg bg-white/95 rounded-none md:rounded-3xl shadow-2xl md:border-4 border-pink-200 overflow-hidden flex flex-col transform transition-transform scale-100">
         
         {/* Header */}
         <div className="bg-gradient-to-r from-pink-500 to-rose-500 p-3 md:p-4 flex items-center justify-between text-white shrink-0">

@@ -21,8 +21,8 @@ const HistoryLog: React.FC<HistoryLogProps> = ({ logs, onClose, t }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-3xl h-[85vh] bg-black/90 border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full h-full md:h-[85vh] md:max-w-3xl bg-black/90 md:border border-gray-700 rounded-none md:rounded-xl shadow-2xl flex flex-col overflow-hidden">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-900/50">
