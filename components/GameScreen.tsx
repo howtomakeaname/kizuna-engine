@@ -180,11 +180,11 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </div>
       )}
 
-      {/* Image Generating Indicator (Bottom Left) */}
+      {/* Image Generating Indicator - MOVED UP (Top Left area, below HUD) to avoid covering choices */}
       {!hideUI && isImageLoading && (
-        <div className="absolute bottom-24 md:bottom-32 left-6 z-20 flex items-center space-x-2 bg-black/70 backdrop-blur-md text-white px-4 py-2 rounded-full shadow-lg border border-white/10 animate-pulse">
-            <Loader2 className="w-4 h-4 animate-spin text-pink-400" />
-            <span className="text-xs font-bold tracking-wide">{t.game.generatingImage}</span>
+        <div className="absolute top-16 left-3 md:top-28 md:left-6 z-20 flex items-center space-x-2 bg-black/70 backdrop-blur-md text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-lg border border-white/10 animate-pulse">
+            <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin text-pink-400" />
+            <span className="text-[10px] md:text-xs font-bold tracking-wide">{t.game.generatingImage}</span>
         </div>
       )}
 
@@ -203,12 +203,12 @@ const GameScreen: React.FC<GameScreenProps> = ({
 
       {/* Choices Overlay - Optimized spacing for mobile landscape */}
       {!hideUI && !isProcessing && (!isTyping || isSkipMode) && !isLinearScene && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 md:gap-4 pointer-events-none pb-24 md:pb-32">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 md:gap-4 pointer-events-none pb-20 md:pb-36">
             {gameState.choices.map((choice, idx) => (
                 <button
                     key={choice.id}
                     onClick={() => onChoiceSelected(choice.id)}
-                    className="pointer-events-auto group relative w-[90%] md:w-full max-w-sm md:max-w-xl overflow-hidden bg-black/60 hover:bg-pink-900/80 backdrop-blur-md border-y border-pink-500/30 hover:border-pink-400 text-center py-2 px-4 md:py-4 md:px-8 transition-all duration-300 transform hover:scale-105 shadow-2xl animate-in fade-in slide-in-from-bottom-4 rounded-lg md:rounded-none"
+                    className="pointer-events-auto group relative w-[85%] md:w-full max-w-sm md:max-w-xl overflow-hidden bg-black/70 hover:bg-pink-900/80 backdrop-blur-md border-y border-pink-500/30 hover:border-pink-400 text-center py-2 px-4 md:py-4 md:px-8 transition-all duration-300 transform hover:scale-105 shadow-2xl animate-in fade-in slide-in-from-bottom-4 rounded-lg md:rounded-none"
                     style={{ animationDelay: `${idx * 100}ms` }}
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-500/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
@@ -220,27 +220,27 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </div>
       )}
 
-      {/* ADV Text Box Area - Reduced height/padding for mobile landscape */}
+      {/* ADV Text Box Area - Lifted slightly, smaller on mobile */}
       {!hideUI && (
-          <div className="absolute bottom-0 inset-x-0 z-20 p-2 pb-4 md:p-4 md:pb-6 flex justify-center animate-in slide-in-from-bottom-10 fade-in duration-700">
-            <div className="w-full max-w-3xl relative">
+          <div className="absolute bottom-0 inset-x-0 z-20 px-2 pb-2 md:px-4 md:pb-6 flex justify-center animate-in slide-in-from-bottom-10 fade-in duration-700">
+            <div className="w-full max-w-3xl relative mb-1 md:mb-6 transition-all duration-300">
                 
                 {/* Speaker Name Tag - Closer to box on mobile */}
                 {speakerName && (
-                    <div className="absolute -top-6 md:-top-9 left-4 md:left-6 z-30 animate-in slide-in-from-left-4 fade-in duration-500">
-                        <div className="bg-gradient-to-r from-pink-600/90 to-rose-600/90 backdrop-blur-md text-white px-4 py-0.5 md:px-6 md:py-1 rounded-t-lg shadow-lg border border-pink-400/50 border-b-0 font-bold text-xs md:text-base tracking-wider transform -skew-x-12 origin-bottom-left">
+                    <div className="absolute -top-5 md:-top-8 left-3 md:left-6 z-30 animate-in slide-in-from-left-4 fade-in duration-500">
+                        <div className="bg-gradient-to-r from-pink-600/90 to-rose-600/90 backdrop-blur-md text-white px-3 py-0.5 md:px-6 md:py-1 rounded-t-lg shadow-lg border border-pink-400/50 border-b-0 font-bold text-xs md:text-base tracking-wider transform -skew-x-12 origin-bottom-left">
                             <span className="block transform skew-x-12 shadow-black drop-shadow-sm">{speakerName}</span>
                         </div>
                     </div>
                 )}
 
-                {/* Main Text Box - Significantly smaller on mobile */}
+                {/* Main Text Box - Significantly compact on mobile landscape */}
                 <div 
-                    className={`bg-black/60 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl shadow-2xl p-3 md:p-6 min-h-[85px] md:min-h-[140px] max-h-[130px] md:max-h-none overflow-y-auto relative cursor-pointer transition-all duration-300 hover:bg-black/70 hover:border-pink-500/30 ring-1 ring-white/5 custom-scrollbar`}
+                    className={`bg-black/80 md:bg-black/60 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl shadow-2xl p-3 md:p-6 min-h-[75px] md:min-h-[140px] max-h-[130px] md:max-h-none overflow-y-auto relative cursor-pointer transition-all duration-300 hover:bg-black/70 hover:border-pink-500/30 ring-1 ring-white/5 custom-scrollbar`}
                     onClick={handleScreenClick}
                 >
                     {/* Decorative Gradient */}
-                    <div className="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-gradient-to-bl from-pink-500/5 to-transparent rounded-bl-full pointer-events-none"></div>
+                    <div className="absolute top-0 right-0 w-12 h-12 md:w-24 md:h-24 bg-gradient-to-bl from-pink-500/5 to-transparent rounded-bl-full pointer-events-none"></div>
                     
                     <p ref={narrativeRef} className="text-sm md:text-lg leading-snug md:leading-relaxed text-gray-100 font-medium font-sans tracking-wide drop-shadow-md relative z-10">
                         {speakerName ? '' : ''}
@@ -259,7 +259,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
                     
                     {/* Click to Continue Indicator (Blinking Arrow) */}
                     {!isTyping && !isProcessing && isLinearScene && (
-                        <div className="absolute bottom-2 right-3 md:bottom-3 md:right-5 animate-bounce text-pink-500/80">
+                        <div className="absolute bottom-1 right-2 md:bottom-3 md:right-5 animate-bounce text-pink-500/80">
                             <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
                         </div>
                     )}

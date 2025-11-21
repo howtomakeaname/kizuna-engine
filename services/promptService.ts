@@ -24,6 +24,7 @@ Context:
 - Quest: {{currentQuest}}
 - Heroines: {{heroinesList}}
 - History: {{historySummary}}
+- Current BGM: {{currentBgm}}
 
 Action: Player chose "{{choiceText}}".
 
@@ -32,8 +33,13 @@ Task:
 2. Update stats.
 3. **Choices Generation**:
    {{choiceInstruction}}
-4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. Include visual descriptions of characters present. **If the background is the same, strictly return NULL for imagePrompt to save costs.**
-5. Suggest BGM (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight) and SFX (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer).`,
+4. **Image Generation**: If the scene location or visual atmosphere changes significantly, provide a new 'imagePrompt'. 
+   - **CRITICAL**: You MUST explicitly describe the physical appearance (hair, eyes, clothes) of any heroine present in the prompt, using the descriptions from the Heroines list.
+   - If the background is the same, strictly return NULL for imagePrompt to save costs.
+5. Suggest BGM. 
+   - Options: SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight, Cyberpunk, Historical.
+   - Keep the current BGM ({{currentBgm}}) if the mood hasn't changed. Change it only if necessary.
+6. Suggest SFX (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer, Scream, Whistle, None) only if a specific sound occurs.`,
 
   secret: `Generate a 'Secret Memory' (Bonus CG) for {{heroineName}} (Archetype: {{heroineArchetype}}).
 Theme: "{{theme}}"

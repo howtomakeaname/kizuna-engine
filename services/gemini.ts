@@ -37,7 +37,7 @@ const sceneSchema: Schema = {
           archetype: { type: Type.STRING },
           affection: { type: Type.NUMBER, description: "0 to 100" },
           status: { type: Type.STRING, description: "Current relationship status label" },
-          description: { type: Type.STRING, description: "Visual description of appearance" },
+          description: { type: Type.STRING, description: "Visual description of appearance (Hair, Eyes, Clothes)" },
         },
         required: ["id", "name", "archetype", "affection", "status", "description"],
       },
@@ -73,11 +73,11 @@ const sceneSchema: Schema = {
     },
     bgm: {
       type: Type.STRING,
-      description: "The mood of the music. Options: 'SliceOfLife', 'Sentimental', 'Tension', 'Action', 'Mystery', 'Romantic', 'Comical', 'Magical', 'Melancholy', 'Upbeat', 'Battle', 'Horror', 'LateNight'.",
+      description: "The mood of the music. Select strictly from: 'SliceOfLife', 'Sentimental', 'Tension', 'Action', 'Mystery', 'Romantic', 'Comical', 'Magical', 'Melancholy', 'Upbeat', 'Battle', 'Horror', 'LateNight', 'Cyberpunk', 'Historical'.",
     },
     soundEffect: {
       type: Type.STRING,
-      description: "Optional sound effect. Options: 'SchoolBell', 'DoorOpen', 'Footsteps', 'Heartbeat', 'Explosion', 'MagicChime', 'Rain', 'Crowd', 'PhoneRing', 'Cheer', 'None'.",
+      description: "Optional sound effect. Options: 'SchoolBell', 'DoorOpen', 'Footsteps', 'Heartbeat', 'Explosion', 'MagicChime', 'Rain', 'Crowd', 'PhoneRing', 'Cheer', 'Scream', 'Whistle', 'None'.",
       nullable: true
     }
   },
@@ -108,8 +108,8 @@ const getJsonSchemaInstruction = () => `
     "location": "string",
     "imagePrompt": "string (OR null if scene/bg has NOT changed)",
     "unlockCg": { "id": "string", "title": "string", "description": "string" } (optional, use null),
-    "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight)",
-    "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer, None)"
+    "bgm": "string (SliceOfLife, Sentimental, Tension, Action, Mystery, Romantic, Comical, Magical, Melancholy, Upbeat, Battle, Horror, LateNight, Cyberpunk, Historical)",
+    "soundEffect": "string (SchoolBell, DoorOpen, Footsteps, Heartbeat, Explosion, MagicChime, Rain, Crowd, PhoneRing, Cheer, Scream, Whistle, None)"
   }
 `;
 
@@ -131,15 +131,20 @@ You are 'Kizuna Engine', a game master for an Infinite Visual Novel.
 2. **Dialogue-First**: Prioritize what characters say. Format: "Name: 'Dialogue'".
 3. **No Prose**: Do not write long descriptions. Show, don't tell.
 4. **Anime Tropes**: Lean into tropes appropriate for the theme.
-5. **Audio Direction**: Always suggest a BGM mood and sound effects to match the scene perfectly.
-6. **Visual Consistency**: When generating 'imagePrompt', you MUST explicitly include the physical traits (hair color, eye color, clothes) of any character present in the scene, based on their description in the 'heroines' list.
+5. **Audio Direction**: 
+   - Select 'bgm' that fits the current mood. Vary it if the mood shifts, but keep it consistent if the scene is static.
+   - Select 'soundEffect' ONLY when a specific action occurs (e.g. door opening, impact).
+6. **Visual Consistency (CRITICAL)**: 
+   - When generating 'imagePrompt', you MUST explicitly include the physical traits (Hair Color, Eye Color, Hairstyle, Clothing) of any character present in the scene.
+   - ALWAYS refer to the 'heroines' list descriptions. Do not hallucinate new features for existing characters.
+   - If a character is in the scene, the prompt MUST look like: "anime style, [Location], [Character Name] is [Action], [Visual Description: Blue hair, twin tails, school uniform], masterpiece..."
 7. **Language**: You MUST output the narrative, choices, quest, location, and heroine details in the requested target language.
 8. **Player Name**: Refer to the main character as the provided Player Name if needed, but prefer first-person perspective or "You".
 
 **Game Rules**:
 1. Track affection (0-100).
 2. Update 'unlockCg' ONLY for major milestones (Affection > 80 events).
-3. Optimize resources: Do NOT generate a new 'imagePrompt' if the visual background has not changed. Use null.
+3. Optimize resources: Do NOT generate a new 'imagePrompt' if the visual background/characters have not changed. Use null.
 4. Return JSON only.
 `;
 
@@ -304,6 +309,7 @@ export const generateNextScene = async (
     currentQuest: currentState.currentQuest,
     heroinesList: heroinesContext, // Updated to pass full details
     historySummary: historySlice,
+    currentBgm: currentState.bgm || "None", // Pass current BGM so AI can decide to keep it or change
     choiceText,
     choiceInstruction
   });
