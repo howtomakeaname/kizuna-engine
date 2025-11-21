@@ -12,6 +12,7 @@ interface GameScreenProps {
   onOpenSave: () => void;
   onOpenLoad: () => void;
   onOpenGallery: () => void;
+  onOpenLog: () => void;
   isProcessing: boolean;
   isImageLoading: boolean;
   t: TranslationType;
@@ -25,6 +26,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
   onOpenSave,
   onOpenLoad,
   onOpenGallery,
+  onOpenLog,
   isProcessing,
   isImageLoading,
   t
@@ -119,6 +121,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     { icon: Save, action: onOpenSave, title: t.menu.actions.save },
     { icon: RotateCcw, action: onOpenLoad, title: t.menu.actions.load },
     { icon: ImageIcon, action: onOpenGallery, title: t.menu.actions.gallery },
+    { icon: History, action: onOpenLog, title: t.game.log },
     { icon: EyeOff, action: () => setHideUI(true), title: t.game.hideUi },
     { icon: FastForward, action: () => setIsSkipMode(!isSkipMode), title: t.game.skip, active: isSkipMode },
     { icon: Menu, action: onToggleMenu, title: t.game.menu }

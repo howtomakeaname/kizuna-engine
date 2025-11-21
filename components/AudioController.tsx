@@ -9,7 +9,6 @@ interface AudioControllerProps {
 }
 
 // Expanded Assets with more distinct audio sources
-// Note: Using various copyright-free placeholder assets to ensure diversity.
 const BGM_TRACKS: Record<string, string> = {
   'SliceOfLife': 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3', // Relaxing guitar
   'Sentimental': 'https://cdn.pixabay.com/download/audio/2021/11/24/audio_826947e594.mp3', // Emotional piano
@@ -104,9 +103,9 @@ const AudioController: React.FC<AudioControllerProps> = ({ bgm, sfx, volume, isM
   useEffect(() => {
     if (isMuted || !sfx || sfx === 'None' || !SFX_TRACKS[sfx]) return;
 
-    // Prevent spamming the same SFX within 500ms
+    // Prevent spamming the same SFX rapidly
     const now = Date.now();
-    if (lastSfxRef.current && lastSfxRef.current.id === sfx && (now - lastSfxRef.current.time < 500)) {
+    if (lastSfxRef.current && lastSfxRef.current.id === sfx && (now - lastSfxRef.current.time < 100)) {
         return;
     }
     
@@ -115,6 +114,14 @@ const AudioController: React.FC<AudioControllerProps> = ({ bgm, sfx, volume, isM
     sound.play().catch(e => console.warn("SFX play failed:", e));
     
     lastSfxRef.current = { id: sfx, time: now };
+
+    // CLEANUP: Stop the sound if the component updates or unmounts.
+    // This effectively prevents the same SFX from stacking on top of each other
+    // if the React component re-renders multiple times (like in Strict Mode) or state updates quickly.
+    return () => {
+        sound.pause();
+        sound.currentTime = 0;
+    };
   }, [sfx, volume, isMuted]);
 
   return null;

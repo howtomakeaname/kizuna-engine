@@ -25,6 +25,13 @@ export interface SavedCG extends UnlockableCG {
   type?: 'event' | 'scene'; // To distinguish between special CGs and regular backgrounds
 }
 
+export interface LogEntry {
+  id: string;
+  speaker?: string;
+  text: string;
+  type: 'narrative' | 'choice';
+}
+
 export interface GameState {
   playerName: string; // Name of the protagonist
   narrative: string;
@@ -36,6 +43,7 @@ export interface GameState {
   imagePrompt: string;
   turnCount: number;
   history: string[]; // Summary of past events to feed back to context
+  logs: LogEntry[]; // Visual Novel Backlog
   unlockCg?: UnlockableCG; // If present, the current scene is a special CG event
   currentBgImage?: string; // Used for saving the game state with the image
   theme: string; // The current active theme of the story

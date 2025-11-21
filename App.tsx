@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameState, GameStatus, SceneResponse, Heroine } from './types';
+import { GameState, GameStatus, SceneResponse, Heroine, LogEntry } from './types';
 import { generateInitialScene, generateNextScene, generateSceneImage, generateSecretMemory } from './services/gemini';
 import { saveCGToGallery, saveGame } from './services/db';
 import { hasValidConfig } from './services/config';
@@ -14,6 +14,7 @@ import NameInputModal from './components/NameInputModal';
 import LoadingScreen from './components/LoadingScreen';
 import ConfigModal from './components/ConfigModal';
 import MobilePortraitOverlay from './components/MobilePortraitOverlay';
+import HistoryLog from './components/HistoryLog';
 import { Loader2, Play, Settings, Image as ImageIcon, UserCog } from 'lucide-react';
 import { translations, Language } from './i18n/translations';
 
@@ -27,6 +28,23 @@ const preloadImage = (src: string): Promise<void> => {
   });
 };
 
+// Helper for parsing narrative
+const parseNarrative = (text: string) => {
+  const colonIndex = text.indexOf(':');
+  // Heuristic: colon must be early in string and not part of a sentence (simplified)
+  // For non-English languages, sometimes full-width colon '：' is used.
+  const colonChar = text.includes('：') ? '：' : ':';
+  const idx = text.indexOf(colonChar);
+
+  if (idx !== -1 && idx < 20) { 
+      return {
+          speaker: text.substring(0, idx),
+          content: text.substring(idx + 1).trim()
+      };
+  }
+  return { speaker: '', content: text };
+};
+
 const App: React.FC = () => {
   const [status, setStatus] = useState<GameStatus>(GameStatus.START_SCREEN);
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -37,6 +55,7 @@ const App: React.FC = () => {
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showHistoryLog, setShowHistoryLog] = useState(false);
   const [isGameLoading, setIsGameLoading] = useState(false); // New state for initial load
   const [error, setError] = useState<string | null>(null);
   const [processingBonusId, setProcessingBonusId] = useState<string | null>(null);
@@ -161,6 +180,9 @@ const App: React.FC = () => {
   // Choice Handler
   const handleChoice = async (choiceId: string) => {
     if (!gameState) return;
+    const choice = gameState.choices.find(c => c.id === choiceId);
+    const choiceText = choice ? choice.text : "";
+    
     setStatus(GameStatus.LOADING_SCENE);
     
     try {
@@ -183,7 +205,7 @@ const App: React.FC = () => {
       // Reset preload ref after use (or if we didn't use it)
       preloadPromiseRef.current = null;
 
-      await updateGameState(scene, gameState.theme, gameState.language, false, gameState.playerName);
+      await updateGameState(scene, gameState.theme, gameState.language, false, gameState.playerName, undefined, choiceText);
     } catch (err: any) {
       console.error(err);
       setError("The engine encountered a glitch. Trying to recover...");
@@ -217,13 +239,40 @@ const App: React.FC = () => {
       language: string, 
       isReset: boolean = false, 
       pName: string = playerName,
-      preloadedImage?: string
+      preloadedImage?: string,
+      lastChoiceText?: string
   ) => {
     
     const previousImage = isReset ? (preloadedImage || "") : gameState?.currentBgImage;
     const newPrompt = scene.imagePrompt;
     
-    // We use a temp variable for the new state to save it properly later
+    // Log Generation Logic
+    let newLogs: LogEntry[] = gameState ? [...gameState.logs] : [];
+
+    // 1. If there was a choice made to get here, log it (unless reset)
+    if (!isReset && lastChoiceText && lastChoiceText !== 'Next' && lastChoiceText !== 'Continue') {
+      newLogs.push({
+        id: `choice_${Date.now()}`,
+        speaker: '', // System/Player
+        text: lastChoiceText,
+        type: 'choice'
+      });
+    }
+
+    // 2. Log the new narrative
+    const { speaker, content } = parseNarrative(scene.narrative);
+    newLogs.push({
+      id: `narrative_${Date.now()}`,
+      speaker: speaker,
+      text: content,
+      type: 'narrative'
+    });
+
+    // Limit log size to 100 entries to prevent infinite growth
+    if (newLogs.length > 100) {
+      newLogs = newLogs.slice(newLogs.length - 100);
+    }
+
     let nextState: GameState = {
       playerName: pName,
       narrative: scene.narrative,
@@ -235,6 +284,7 @@ const App: React.FC = () => {
       imagePrompt: newPrompt || (gameState?.imagePrompt || ""),
       turnCount: isReset ? 1 : (gameState?.turnCount || 0) + 1,
       history: gameState ? [...gameState.history, scene.narrative] : [scene.narrative],
+      logs: newLogs,
       unlockCg: scene.unlockCg,
       currentBgImage: previousImage, // Default to previous until new one loads
       theme: theme,
@@ -304,6 +354,12 @@ const App: React.FC = () => {
 
   const handleLoadGame = (loadedState: GameState) => {
     preloadPromiseRef.current = null; // Clear preload when loading a different state
+    
+    // Ensure compatibility with old saves that don't have logs
+    if (!loadedState.logs) {
+      loadedState.logs = [];
+    }
+
     setGameState(loadedState);
     setPlayerName(loadedState.playerName || "Protagonist"); // Fallback for old saves
     
@@ -503,6 +559,7 @@ const App: React.FC = () => {
             onOpenSave={() => setShowSaveLoad('save')}
             onOpenLoad={() => setShowSaveLoad('load')}
             onOpenGallery={() => setShowGallery(true)}
+            onOpenLog={() => setShowHistoryLog(true)}
             isProcessing={status === GameStatus.LOADING_SCENE}
             isImageLoading={isImageLoading}
             t={t}
@@ -527,6 +584,15 @@ const App: React.FC = () => {
             setIsMuted={setIsMuted}
             onUpdateName={handleUpdateName}
           />
+      )}
+      
+      {/* History Log Modal */}
+      {showHistoryLog && gameState && (
+        <HistoryLog 
+          logs={gameState.logs} 
+          onClose={() => setShowHistoryLog(false)} 
+          t={t}
+        />
       )}
 
       {processingBonusId && (
