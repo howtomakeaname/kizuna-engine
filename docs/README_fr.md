@@ -1,7 +1,7 @@
 
 # Kizuna Engine - Moteur Kizuna (Visual Novel Infini)
 
-![Écran titre](images/startScreen.png)
+![Écran titre](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
 
 Un générateur de Visual Novel en temps réel et infini, propulsé par l'IA générative. Vivez une histoire unique où chaque choix compte, avec des ressources générées dynamiquement et un support multilingue.
 

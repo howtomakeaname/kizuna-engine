@@ -1,7 +1,7 @@
 
 # Kizuna Engine - Infinite Galgame
 
-![Start Screen](docs/images/startScreen.png)
+![Start Screen](https://img.cdn1.vip/i/692009020938d_1763707138.webp)
 
 A real-time, infinite visual novel generator powered by Generative AI. Experience a unique story where every choice matters, with dynamic assets and multilingual support.
 
